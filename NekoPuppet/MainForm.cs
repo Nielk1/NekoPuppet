@@ -1,4 +1,5 @@
 ﻿using EmoteEngineNet;
+using NekoPuppet.Plugins;
 using SharpDX;
 using SharpDX.Direct3D9;
 using SharpDX.Windows;
@@ -9,6 +10,7 @@ using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,11 +32,35 @@ namespace NekoPuppet
         private PreciseTimer _timer = new PreciseTimer();
         private bool rendering = false;
 
+        private FunctionGraphForm functionGraph;
+
+        List<ICharacterLoader> CharacterLoaders = new List<ICharacterLoader>();
         List<ICharacterListViewItem> files;
 
         public MainForm()
         {
             InitializeComponent();
+        }
+
+        private ICharacterLoader[] LoadAssembly(string assemblyPath)
+        {
+            string assembly = Path.GetFullPath(assemblyPath);
+            Assembly ptrAssembly = Assembly.LoadFile(assembly);
+            return ptrAssembly.GetTypes().AsEnumerable()
+                .Where(item => item.IsClass)
+                .Where(item => item.GetInterfaces().Contains(typeof(ICharacterLoader)))
+                .ToList()
+                .Select(item => (ICharacterLoader)Activator.CreateInstance(item))
+                .ToArray();
+            /*foreach (Type item in ptrAssembly.GetTypes())
+            {
+                if (!item.IsClass) continue;
+                if (item.GetInterfaces().Contains(typeof(IControlNodeFactoryPlugin)))
+                {
+                    return (IControlNodeFactoryPlugin)Activator.CreateInstance(item);
+                }
+            }
+            throw new Exception("Invalid DLL, Interface not found!");*/
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -46,6 +72,32 @@ namespace NekoPuppet
                 Key = "742877301"
             };
             emoteLibs.Add(meta);
+
+
+
+
+            {
+                string pluginsDir = Path.Combine(Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath), "plugins");
+                if (!Directory.Exists(pluginsDir)) Directory.CreateDirectory(pluginsDir);
+                List<string> plugins = Directory.GetFiles(pluginsDir, "*.dll", SearchOption.TopDirectoryOnly).ToList();
+                plugins.ForEach(dr =>
+                {
+                    try
+                    {
+                        ICharacterLoader[] pluginInstances = LoadAssembly(dr);
+                        foreach (ICharacterLoader plugin in pluginInstances)
+                        {
+                            CharacterLoaders.Add(plugin);
+                        }
+                    }
+                    catch { }
+                });
+            }
+
+
+
+
+
 
             renderForm = new EnhancedRenderForm();
             //renderForm.AutoScaleMode = AutoScaleMode.None;
@@ -60,6 +112,13 @@ namespace NekoPuppet
             emote.EmoteInit();
 
             _device = new Device(new IntPtr(emote.D3Device));
+
+            functionGraph = new FunctionGraphForm();
+            functionGraph.Width = this.Width;
+            functionGraph.Height = renderForm.Height - this.Height;
+            functionGraph.StartPosition = FormStartPosition.Manual;
+            functionGraph.Location = new Point(this.Location.X, this.Location.Y + this.Height);
+            functionGraph.Show();
 
             rendering = true;
             Task.Run(() =>
@@ -96,22 +155,10 @@ namespace NekoPuppet
                 //SetMax.Report(apps.Length - 1);
                 List<ICharacterListViewItem> tmpList = new List<ICharacterListViewItem>();
 
-
-                // extract into loader for plugin inclusion
+                CharacterLoaders.ForEach(dr =>
                 {
-                    CharacterData.NekoparaVol0CHaracterSource tmp = new CharacterData.NekoparaVol0CHaracterSource();
-                    tmpList.AddRange(tmp.GetCharacters());
-                }
-
-                {
-                    CharacterData.NekoparaVol1CHaracterSource tmp = new CharacterData.NekoparaVol1CHaracterSource();
-                    tmpList.AddRange(tmp.GetCharacters());
-                }
-
-                {
-                    CharacterData.MontDaughterRemCharacterSource tmp = new CharacterData.MontDaughterRemCharacterSource();
-                    tmpList.AddRange(tmp.GetCharacters());
-                }
+                    tmpList.AddRange(dr.GetCharacters());
+                });
 
                 //for (int x = 0; x < apps.Length; x++)
                 //{
@@ -151,6 +198,7 @@ namespace NekoPuppet
 
                 files = task.Result;
                 listView1.DataSource = files;
+                listView1.Refresh();
                 listView1.Enabled = true;
                 tsbRefresh.Enabled = true;
             }, TaskScheduler.FromCurrentSynchronizationContext());

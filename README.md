@@ -8,6 +8,12 @@ https://github.com/Nielk1/EmoteEngineNet
 
 Managed wrapper for the [E-Mote engine](http://emote.mtwo.co.jp/).
 
+### FunctionalNodeGraphWPF
+
+https://github.com/Nielk1/FunctionalNodeGraphWPF
+
+WPF Node Graph modified to execute basic functional flowcharts.
+
 ### DotNetZip.ZipReducedKeyDecrypt
 
 https://github.com/Nielk1/DotNetZip.ZipReducedKeyDecrypt

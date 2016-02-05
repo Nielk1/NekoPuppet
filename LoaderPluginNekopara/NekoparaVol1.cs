@@ -1,4 +1,6 @@
-﻿using System;
+﻿using LoaderPluginNekopara;
+using NekoPuppet.Plugins;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -10,7 +12,7 @@ using System.Windows.Forms;
 
 namespace NekoPuppet.CharacterData
 {
-    public class NekoparaVol1CHaracterSource : NekoparaVolBase
+    public class NekoparaVol1CHaracterSource : NekoparaVolBase, ICharacterLoader
     {
         protected override string nekoparaVolDataPath { get { return Path.Combine(Directory.GetCurrentDirectory(), @"assets", @"NekoparaVol1", @"emotewin.xp3"); } }
 

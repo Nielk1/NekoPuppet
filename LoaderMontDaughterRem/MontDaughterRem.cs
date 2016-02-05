@@ -1,4 +1,6 @@
 ﻿using IonicCustomMod.Zip;
+using LoaderMontDaughterRem;
+using NekoPuppet.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,7 +13,7 @@ using System.Windows.Forms;
 
 namespace NekoPuppet.CharacterData
 {
-    public class MontDaughterRemCharacterSource
+    public class MontDaughterRemCharacterSource : ICharacterLoader
     {
         string montDaughterRemDataPath = Path.Combine(Directory.GetCurrentDirectory(), @"assets", @"jp.furyu.moefan", @"files", @"DAT", @"Resources");
 

@@ -206,7 +206,7 @@
             // 
             this.splitContainer1.Panel2.Controls.Add(this.listView1);
             this.splitContainer1.Panel2.Controls.Add(this.toolStrip1);
-            this.splitContainer1.Size = new System.Drawing.Size(758, 365);
+            this.splitContainer1.Size = new System.Drawing.Size(758, 257);
             this.splitContainer1.SplitterDistance = 223;
             this.splitContainer1.TabIndex = 9;
             // 
@@ -217,7 +217,7 @@
             this.listView1.Enabled = false;
             this.listView1.Location = new System.Drawing.Point(0, 25);
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(531, 340);
+            this.listView1.Size = new System.Drawing.Size(531, 232);
             this.listView1.TabIndex = 0;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -286,7 +286,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(758, 365);
+            this.ClientSize = new System.Drawing.Size(758, 257);
             this.Controls.Add(this.splitContainer1);
             this.Name = "MainForm";
             this.Text = "NekoPuppet";

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace NekoPuppet {
+namespace LoaderPluginNekopara {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace NekoPuppet {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("NekoPuppet.Resource", typeof(Resource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("LoaderPluginNekopara.Resource", typeof(Resource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -57,6 +57,16 @@ namespace NekoPuppet {
             }
             set {
                 resourceCulture = value;
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap thumb_small_nekopara {
+            get {
+                object obj = ResourceManager.GetObject("thumb_small_nekopara", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
     }
