@@ -11,6 +11,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +38,14 @@ namespace NekoPuppet
         List<ICharacterLoader> CharacterLoaders = new List<ICharacterLoader>();
         List<ICharacterListViewItem> files;
 
+        //[DllImport("kernel32.dll", SetLastError = true)]
+        //[return: MarshalAs(UnmanagedType.Bool)]
+        //static extern bool AllocConsole();
+
+        //[DllImport("kernel32.dll")]
+        //[return: MarshalAs(UnmanagedType.Bool)]
+        //static extern bool FreeConsole();
+
         public MainForm()
         {
             InitializeComponent();
@@ -46,25 +55,26 @@ namespace NekoPuppet
         {
             string assembly = Path.GetFullPath(assemblyPath);
             Assembly ptrAssembly = Assembly.LoadFile(assembly);
-            return ptrAssembly.GetTypes().AsEnumerable()
-                .Where(item => item.IsClass)
-                .Where(item => item.GetInterfaces().Contains(typeof(ICharacterLoader)))
-                .ToList()
-                .Select(item => (ICharacterLoader)Activator.CreateInstance(item))
-                .ToArray();
-            /*foreach (Type item in ptrAssembly.GetTypes())
+            try
             {
-                if (!item.IsClass) continue;
-                if (item.GetInterfaces().Contains(typeof(IControlNodeFactoryPlugin)))
-                {
-                    return (IControlNodeFactoryPlugin)Activator.CreateInstance(item);
-                }
+                return ptrAssembly.GetTypes().AsEnumerable()
+                    .Where(item => item.IsClass)
+                    .Where(item => item.GetInterfaces().Contains(typeof(ICharacterLoader)))
+                    .ToList()
+                    .Select(item => (ICharacterLoader)Activator.CreateInstance(item))
+                    .ToArray();
             }
-            throw new Exception("Invalid DLL, Interface not found!");*/
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return new ICharacterLoader[0];
+            }
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            //AllocConsole();
+
             EmoteModuleMetadata meta = new EmoteModuleMetadata()
             {
                 Text = @"NEKOPARA Vol.0",
@@ -469,6 +479,11 @@ namespace NekoPuppet
         {
             if(e.KeyCode == Keys.Return)
                 LoadEmotePlayer();
+        }
+
+        private void btnShowNodes_Click(object sender, EventArgs e)
+        {
+            functionGraph.Show();
         }
     }
 }

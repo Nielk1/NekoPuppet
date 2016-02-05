@@ -23,7 +23,11 @@ namespace NekoPuppet
             nodeGraph1.NodeCreated += NodeGraph1_NodeCreated;
             nodeGraph1.NodeDeleted += NodeGraph1_NodeDeleted;
 
+            saveFileDialog1.InitialDirectory = Path.Combine(Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath), "nodes");
+            openFileDialog1.InitialDirectory = Path.Combine(Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath), "nodes");
 
+            saveFileDialog1.FileName = string.Empty;
+            openFileDialog1.FileName = string.Empty;
 
             string pluginsDir = Path.Combine(Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath), "plugins");
             if (!Directory.Exists(pluginsDir)) Directory.CreateDirectory(pluginsDir);
@@ -56,12 +60,20 @@ namespace NekoPuppet
         {
             string assembly = Path.GetFullPath(assemblyPath);
             Assembly ptrAssembly = Assembly.LoadFile(assembly);
-            return ptrAssembly.GetTypes().AsEnumerable()
-                .Where(item => item.IsClass)
-                .Where(item => item.GetInterfaces().Contains(typeof(IControlNodeFactoryPlugin)))
-                .ToList()
-                .Select(item => (IControlNodeFactoryPlugin)Activator.CreateInstance(item))
-                .ToArray();
+            try
+            {
+                return ptrAssembly.GetTypes().AsEnumerable()
+                    .Where(item => item.IsClass)
+                    .Where(item => item.GetInterfaces().Contains(typeof(IControlNodeFactoryPlugin)))
+                    .ToList()
+                    .Select(item => (IControlNodeFactoryPlugin)Activator.CreateInstance(item))
+                    .ToArray();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return new IControlNodeFactoryPlugin[0];
+            }
             /*foreach (Type item in ptrAssembly.GetTypes())
             {
                 if (!item.IsClass) continue;
@@ -83,7 +95,7 @@ namespace NekoPuppet
         {
             //if(e.Node.ExecutionType == NetworkModel.NodeExecutionType.Self)
             //{
-                e.Node.Start();
+            e.Node.Start();
             //}
         }
 
@@ -93,7 +105,8 @@ namespace NekoPuppet
         {
             Dictionary<Guid, Guid> Remap = new Dictionary<Guid, Guid>();
 
-            Func<Guid, Guid> convertGuid = ((input) => {
+            Func<Guid, Guid> convertGuid = ((input) =>
+            {
                 if (Remap.ContainsKey(input)) return Remap[input];
                 Remap[input] = Guid.NewGuid();
                 return Remap[input];
@@ -215,7 +228,7 @@ namespace NekoPuppet
                         if (dr["type"] != null && dr["type"].Type == JTokenType.String)
                         {
                             string type = (string)dr["type"];
-                            if(TypeToFactory.ContainsKey(type))
+                            if (TypeToFactory.ContainsKey(type))
                             {
                                 Guid[] _ei = dr["ei"] != null && dr["ei"].Type == JTokenType.Array ? ((JArray)dr["ei"]).Select(dx => new Guid((string)dx)).ToArray() : new Guid[0];
                                 Guid[] _eo = dr["eo"] != null && dr["eo"].Type == JTokenType.Array ? ((JArray)dr["eo"]).Select(dx => new Guid((string)dx)).ToArray() : new Guid[0];
@@ -239,7 +252,7 @@ namespace NekoPuppet
                     {
                         ((JArray)obj["dcons"]).ToList().ForEach(dr =>
                         {
-                            if(dr != null && dr.Type == JTokenType.Object)
+                            if (dr != null && dr.Type == JTokenType.Object)
                             {
                                 Guid conSource = new Guid((string)(((JObject)dr)["s"]));
                                 Guid conDest = new Guid((string)(((JObject)dr)["d"]));
@@ -389,6 +402,15 @@ namespace NekoPuppet
                 {
                     writer.Write(SaveData.ToString());
                 }
+            }
+        }
+
+        private void FunctionGraphForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (e.CloseReason != CloseReason.ApplicationExitCall)
+            {
+                e.Cancel = true;
+                this.Hide();
             }
         }
     }

@@ -39,12 +39,13 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.listView1 = new NekoPuppet.CharacterListView();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.tsbRefresh = new System.Windows.Forms.ToolStripButton();
+            this.listView1 = new NekoPuppet.CharacterListView();
+            this.btnShowNodes = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.nudWW)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudWH)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudRW)).BeginInit();
@@ -193,6 +194,7 @@
             // 
             // splitContainer1.Panel1
             // 
+            this.splitContainer1.Panel1.Controls.Add(this.btnShowNodes);
             this.splitContainer1.Panel1.Controls.Add(this.label1);
             this.splitContainer1.Panel1.Controls.Add(this.nudWW);
             this.splitContainer1.Panel1.Controls.Add(this.label4);
@@ -207,23 +209,8 @@
             this.splitContainer1.Panel2.Controls.Add(this.listView1);
             this.splitContainer1.Panel2.Controls.Add(this.toolStrip1);
             this.splitContainer1.Size = new System.Drawing.Size(758, 257);
-            this.splitContainer1.SplitterDistance = 223;
+            this.splitContainer1.SplitterDistance = 215;
             this.splitContainer1.TabIndex = 9;
-            // 
-            // listView1
-            // 
-            this.listView1.DataSource = null;
-            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView1.Enabled = false;
-            this.listView1.Location = new System.Drawing.Point(0, 25);
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(531, 232);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.VirtualMode = true;
-            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
-            this.listView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listView1_KeyDown);
             // 
             // toolStrip1
             // 
@@ -235,7 +222,7 @@
             this.tsbRefresh});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(531, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(539, 25);
             this.toolStrip1.TabIndex = 3;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -282,6 +269,31 @@
             this.tsbRefresh.Text = "toolStripButton2";
             this.tsbRefresh.Click += new System.EventHandler(this.tsbRefresh_Click);
             // 
+            // listView1
+            // 
+            this.listView1.DataSource = null;
+            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView1.Enabled = false;
+            this.listView1.Location = new System.Drawing.Point(0, 25);
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(539, 232);
+            this.listView1.TabIndex = 0;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.Details;
+            this.listView1.VirtualMode = true;
+            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+            this.listView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listView1_KeyDown);
+            // 
+            // btnShowNodes
+            // 
+            this.btnShowNodes.Location = new System.Drawing.Point(6, 74);
+            this.btnShowNodes.Name = "btnShowNodes";
+            this.btnShowNodes.Size = new System.Drawing.Size(203, 23);
+            this.btnShowNodes.TabIndex = 8;
+            this.btnShowNodes.Text = "Node Graph Editor";
+            this.btnShowNodes.UseVisualStyleBackColor = true;
+            this.btnShowNodes.Click += new System.EventHandler(this.btnShowNodes_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -324,6 +336,7 @@
         private System.Windows.Forms.ToolStripButton toolStripButton3;
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStrip toolStrip1;
+        private System.Windows.Forms.Button btnShowNodes;
     }
 }
 

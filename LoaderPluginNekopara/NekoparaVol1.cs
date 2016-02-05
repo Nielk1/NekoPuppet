@@ -10,7 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace NekoPuppet.CharacterData
+namespace NekoPuppet.Plugins.Loaders.Nekopara
 {
     public class NekoparaVol1CHaracterSource : NekoparaVolBase, ICharacterLoader
     {

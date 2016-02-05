@@ -1,16 +1,12 @@
 ﻿using LoaderPluginNekopara;
-using NekoPuppet.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace NekoPuppet.CharacterData
+namespace NekoPuppet.Plugins.Loaders.Nekopara
 {
     public class NekoparaVol0CHaracterSource : NekoparaVolBase, ICharacterLoader
     {
