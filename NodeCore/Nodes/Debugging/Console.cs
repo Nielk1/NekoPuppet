@@ -64,14 +64,15 @@ namespace NekoPuppet.Plugins.Nodes.Core.Debug
 
         public override void Start() { }
 
-        public override void Execute()
+        public override void Execute(object context)
         {
             string output = this.Name;
             if (inputText.IsConnected)
             {
+                object newContext = new object();
                 output = string.Join("\t", inputText.AttachedConnections.Select(connection =>
                 {
-                    object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector);
+                    object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector, newContext);
                     try { return ((INodeData)tmp).ToString(); } catch { }
                     try { return tmp.ToString(); } catch { }
                     return null;
@@ -80,7 +81,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.Debug
             Console.WriteLine(output);
         }
 
-        public override object GetValue(ConnectorViewModel connector)
+        public override object GetValue(ConnectorViewModel connector, object context)
         {
             return null;
         }

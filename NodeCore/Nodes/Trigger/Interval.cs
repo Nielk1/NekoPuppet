@@ -149,14 +149,14 @@ namespace NekoPuppet.Plugins.Nodes.Core.Trigger
             worker.Start();
         }
 
-        public override void Execute() { }
+        public override void Execute(object context) { }
 
         public override void Dispose()
         {
             Stop();
         }
 
-        public override object GetValue(ConnectorViewModel connector)
+        public override object GetValue(ConnectorViewModel connector, object context)
         {
             return null;
         }
@@ -175,7 +175,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.Trigger
                         con.DestConnector != null &&
                         con.DestConnector.ParentNode != null)
                     {
-                        con.DestConnector.ParentNode.Execute();
+                        con.DestConnector.ParentNode.Execute(new object());
                     }
                 }
             }

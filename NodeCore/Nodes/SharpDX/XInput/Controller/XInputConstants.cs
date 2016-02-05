@@ -112,11 +112,11 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
 
         public override void Start() { }
 
-        public override void Execute() { }
+        public override void Execute(object context) { }
 
         public override void Dispose() { }
 
-        public override object GetValue(ConnectorViewModel connector)
+        public override object GetValue(ConnectorViewModel connector, object context)
         {
             if (conLeftThumbDeadZone == connector)
                 return NodeDataNumeric.FromInt16(SharpDX.XInput.Gamepad.LeftThumbDeadZone);

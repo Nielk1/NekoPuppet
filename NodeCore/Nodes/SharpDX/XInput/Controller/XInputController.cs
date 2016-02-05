@@ -196,7 +196,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
 
         public override void Start() { }
 
-        public override void Execute() {
+        public override void Execute(object context) {
             if (controller.IsConnected)
             {
                 cState = controller.GetState();
@@ -215,14 +215,14 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
                     con.DestConnector != null &&
                     con.DestConnector.ParentNode != null)
                 {
-                    con.DestConnector.ParentNode.Execute();
+                    con.DestConnector.ParentNode.Execute(new object());
                 }
             }
         }
 
         public override void Dispose() { }
 
-        public override object GetValue(ConnectorViewModel connector)
+        public override object GetValue(ConnectorViewModel connector, object context)
         {
             if (controller.IsConnected && cState.HasValue)
             {

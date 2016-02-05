@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace NekoPuppet.Plugins.Nodes.Core.Math
@@ -62,10 +63,17 @@ namespace NekoPuppet.Plugins.Nodes.Core.Math
             //Decimal,
         }
 
+        class Cache
+        {
+            public double value;
+        }
+
         PropertyDialog dlgEdit;
 
         ConnectorViewModel conOut;
         ConnectorViewModel conInput;
+
+        private ConditionalWeakTable<object, Cache> DataCache = new ConditionalWeakTable<object, Cache>();
 
         public override string Type { get { return MathSumNodeFactory.TYPESTRING; } }
 
@@ -133,20 +141,30 @@ namespace NekoPuppet.Plugins.Nodes.Core.Math
 
         public override void Start() { }
 
-        public override void Execute() { }
+        public override void Execute(object context) { }
 
         public override void Dispose() { }
 
-        public override object GetValue(ConnectorViewModel connector)
+        public override object GetValue(ConnectorViewModel connector, object context)
         {
             if (conInput.IsConnected)
             {
-                double retVal = conInput.AttachedConnections.Sum(connection =>
+                Cache cache;
+                double retVal;
+                if (context == null || !DataCache.TryGetValue(context, out cache))
                 {
-                    object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector);
-                    try { if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return ((NodeDataNumeric)tmp).GetDouble(); } catch { }
-                    return 0d;
-                });
+                    retVal = conInput.AttachedConnections.Sum(connection =>
+                    {
+                        object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector, context);
+                        try { if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return ((NodeDataNumeric)tmp).GetDouble(); } catch { }
+                        return 0d;
+                    });
+                    DataCache.Add(context, new Cache() { value = retVal });
+                }
+                else
+                {
+                    retVal = cache.value;
+                }
 
                 switch (CastToType)
                 {

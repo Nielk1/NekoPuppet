@@ -5,6 +5,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Windows.Forms;
 
 namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
@@ -50,6 +51,12 @@ namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
             public double Max { get; set; }
         }
 
+        class Cache
+        {
+            internal double X;
+            internal double Y;
+        }
+
         PropertyDialog dlgEdit;
 
         double Min;
@@ -61,6 +68,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
         ConnectorViewModel conInY;
         ConnectorViewModel conInMax;
         ConnectorViewModel conInMin;
+
+        private ConditionalWeakTable<object, Cache> DataCache = new ConditionalWeakTable<object, Cache>();
 
         public override string Type { get { return ScaledRadialNodeFactory.TYPESTRING; } }
 
@@ -154,95 +163,121 @@ namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
 
         public override void Start() { }
 
-        public override void Execute() { }
+        public override void Execute(object context) { }
 
         public override void Dispose() { }
 
-        public override object GetValue(ConnectorViewModel connector)
+        public override object GetValue(ConnectorViewModel connector, object context)
         {
             if (conOutX == connector || conOutY == connector)
             {
-                NodeDataNumeric MinNodeVal = conInMin.AttachedConnections.Select(connection =>
+                Cache cache;
+                double outX;
+                double outY;
+
+                if (context == null || !DataCache.TryGetValue(context, out cache))
                 {
-                    try
+                    NodeDataNumeric MinNodeVal = conInMin.AttachedConnections.Select(connection =>
                     {
-                        object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector);
-                        if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return (NodeDataNumeric)tmp;
-                        return null;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                }).Where(val => val != null).FirstOrDefault();
+                        try
+                        {
+                            object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector, context);
+                            if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return (NodeDataNumeric)tmp;
+                            return null;
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    }).Where(val => val != null).FirstOrDefault();
 
-                NodeDataNumeric MaxNodeVal = conInMax.AttachedConnections.Select(connection =>
+                    NodeDataNumeric MaxNodeVal = conInMax.AttachedConnections.Select(connection =>
+                    {
+                        try
+                        {
+                            object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector, context);
+                            if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return (NodeDataNumeric)tmp;
+                            return null;
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    }).Where(val => val != null).FirstOrDefault();
+
+                    NodeDataNumeric XNodeVal = conInX.AttachedConnections.Select(connection =>
+                    {
+                        try
+                        {
+                            object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector, context);
+                            if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return (NodeDataNumeric)tmp;
+                            return null;
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    }).Where(val => val != null).FirstOrDefault();
+
+                    NodeDataNumeric YNodeVal = conInY.AttachedConnections.Select(connection =>
+                    {
+                        try
+                        {
+                            object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector, context);
+                            if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return (NodeDataNumeric)tmp;
+                            return null;
+                        }
+                        catch
+                        {
+                            return null;
+                        }
+                    }).Where(val => val != null).FirstOrDefault();
+
+                    double Min = this.Min;
+                    double Max = this.Max;
+                    double X = 0;
+                    double Y = 0;
+
+                    try { if (MinNodeVal != null) Min = MinNodeVal.GetDouble(); } catch { }
+                    try { if (MaxNodeVal != null) Max = MaxNodeVal.GetDouble(); } catch { }
+                    try { if (XNodeVal != null) X = XNodeVal.GetDouble(); } catch { }
+                    try { if (YNodeVal != null) Y = YNodeVal.GetDouble(); } catch { }
+
+                    double MaxMag = Max - Min;
+
+                    double inputMagnitude = System.Math.Sqrt(X * X + Y * Y);
+
+                    if (inputMagnitude < Min)
+                    {
+                        DataCache.Add(context, new Cache() { X = 0d, Y = 0d });
+                        //Console.WriteLine("Storing data for {0,8:X8}", RuntimeHelpers.GetHashCode(context));
+                        return NodeDataNumeric.FromDouble(0d);
+                    }
+                    if (inputMagnitude > Max) inputMagnitude = Max;
+
+                    double newMagnitude = ((inputMagnitude - Min) / MaxMag);
+
+                    outX = System.Math.Min(System.Math.Max(X / inputMagnitude, -1d), 1d) * newMagnitude;
+                    outY = System.Math.Min(System.Math.Max(Y / inputMagnitude, -1d), 1d) * newMagnitude;
+
+                    DataCache.Add(context, new Cache() { X = outX, Y = outY });
+
+                    //Console.WriteLine("Storing data for {0,8:X8}", RuntimeHelpers.GetHashCode(context));
+                }
+                else
                 {
-                    try
-                    {
-                        object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector);
-                        if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return (NodeDataNumeric)tmp;
-                        return null;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                }).Where(val => val != null).FirstOrDefault();
-
-                NodeDataNumeric XNodeVal = conInX.AttachedConnections.Select(connection =>
-                {
-                    try
-                    {
-                        object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector);
-                        if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return (NodeDataNumeric)tmp;
-                        return null;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                }).Where(val => val != null).FirstOrDefault();
-
-                NodeDataNumeric YNodeVal = conInY.AttachedConnections.Select(connection =>
-                {
-                    try
-                    {
-                        object tmp = connection.SourceConnector.ParentNode.GetValue(connection.SourceConnector);
-                        if (typeof(NodeDataNumeric).IsAssignableFrom(tmp.GetType())) return (NodeDataNumeric)tmp;
-                        return null;
-                    }
-                    catch
-                    {
-                        return null;
-                    }
-                }).Where(val => val != null).FirstOrDefault();
-
-                double Min = this.Min;
-                double Max = this.Max;
-                double X = 0;
-                double Y = 0;
-                try { if (MinNodeVal != null) Min = MinNodeVal.GetDouble(); } catch { }
-                try { if (MaxNodeVal != null) Max = MaxNodeVal.GetDouble(); } catch { }
-                try { if (XNodeVal != null) X = XNodeVal.GetDouble(); } catch { }
-                try { if (YNodeVal != null) Y = YNodeVal.GetDouble(); } catch { }
-
-                double MaxMag = Max - Min;
-
-                double inputMagnitude = System.Math.Sqrt(X * X + Y * Y);
-
-                if (inputMagnitude < Min) return NodeDataNumeric.FromDouble(0d);
-                if (inputMagnitude > Max) inputMagnitude = Max;
-
-                double newMagnitude = ((inputMagnitude - Min) / MaxMag);
+                    outX = cache.X;
+                    outY = cache.Y;
+                    //Console.WriteLine("Loading data for {0,8:X8}", RuntimeHelpers.GetHashCode(context));
+                }
 
                 if (conOutX == connector)
                 {
-                    return NodeDataNumeric.FromDouble(System.Math.Min(System.Math.Max(X / inputMagnitude, -1d), 1d) * newMagnitude);
+                    return NodeDataNumeric.FromDouble(outX);
                 }
                 if (conOutY == connector)
                 {
-                    return NodeDataNumeric.FromDouble(System.Math.Min(System.Math.Max(Y / inputMagnitude, -1d), 1d) * newMagnitude);
+                    return NodeDataNumeric.FromDouble(outY);
                 }
             }
             return null;
