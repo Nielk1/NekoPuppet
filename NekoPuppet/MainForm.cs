@@ -79,10 +79,17 @@ namespace NekoPuppet
             {
                 Text = @"NEKOPARA Vol.0",
                 Path = @"neko0\emotedriver.dll",
-                Key = "742877301"
+                Key = "742877301",
+                Ver = InterfaceVersion.NEKO0,
             };
+            //EmoteModuleMetadata meta = new EmoteModuleMetadata()
+            //{
+            //    Text = @"NEKOPARA Vol.1",
+            //    Path = @"neko1\emotedriver.dll",
+            //    Key = "742877301",
+            //    Ver = InterfaceVersion.NEKO1,
+            //};
             emoteLibs.Add(meta);
-
 
 
 
@@ -118,7 +125,10 @@ namespace NekoPuppet
             renderForm.Location = new Point(this.Location.X + this.Width, this.Location.Y);
             renderForm.Show();
             emote = new Emote(renderForm.Handle, 512, 512, false);
-            emote.LoadEmoteEngine(Path.Combine(Directory.GetCurrentDirectory(), @"engines", meta.Path));
+
+
+
+            emote.LoadEmoteEngine(Path.Combine(Directory.GetCurrentDirectory(), @"engines", meta.Path), meta.Ver);
             emote.EmoteInit();
 
             _device = new Device(new IntPtr(emote.D3Device));
