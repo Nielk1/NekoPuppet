@@ -327,7 +327,9 @@ namespace NekoPuppet
 
                 CharacterLoaders.ForEach(dr =>
                 {
-                    tmpList.AddRange(dr.GetCharacters());
+                    List<ICharacterListViewItem> chars = dr.GetCharacters();
+                    if(chars != null)
+                        tmpList.AddRange(chars);
                 });
 
                 //for (int x = 0; x < apps.Length; x++)

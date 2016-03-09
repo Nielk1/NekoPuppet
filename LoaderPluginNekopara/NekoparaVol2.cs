@@ -1,20 +1,16 @@
 ﻿using LoaderPluginNekopara;
-using NekoPuppet.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace NekoPuppet.Plugins.Loaders.Nekopara
 {
-    public class NekoparaVol1CharacterSource : NekoparaVolBase, ICharacterLoader
+    public class NekoparaVol2CHaracterSource : NekoparaVolBase, ICharacterLoader
     {
-        protected override string nekoparaVolDataPath { get { return Path.Combine(Directory.GetCurrentDirectory(), @"assets", @"NekoparaVol1", @"emotewin.xp3"); } }
+        protected override string nekoparaVolDataPath { get { return Path.Combine(Directory.GetCurrentDirectory(), @"assets", @"NekoparaVol2", @"emotewin.xp3"); } }
 
         public List<ICharacterListViewItem> GetCharacters()
         {
@@ -33,7 +29,7 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
                     }
                 }
 
-                return fileData.Where(dr => dr.Filename.EndsWith(".psb")).Select(dr => (ICharacterListViewItem)new NekoparaVol1CharacterData(dr, this)).ToList();
+                return fileData.Where(dr => dr.Filename.EndsWith(".psb")).Select(dr => (ICharacterListViewItem)new NekoparaVol2CharacterData(dr, this)).ToList();
             }
             catch (FileNotFoundException)
             {
@@ -44,20 +40,21 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
                 return null;
             }
         }
+
     }
 
-    public class NekoparaVol1CharacterData : ICharacterListViewItem
+    public class NekoparaVol2CharacterData : ICharacterListViewItem
     {
         private bool zip;
         private UInt64 offset;
         private UInt64 size;
         private UInt64 zsize;
 
-        NekoparaVol1CharacterSource intr;
+        NekoparaVol2CHaracterSource intr;
 
         private static Image nekoIcon = Resource.thumb_small_nekopara;
 
-        public NekoparaVol1CharacterData(NekoparaVol0CharacterSource.FileData data, NekoparaVol1CharacterSource intr)
+        public NekoparaVol2CharacterData(NekoparaVol2CHaracterSource.FileData data, NekoparaVol2CHaracterSource intr)
         {
             this.filename = data.Filename;
             this.offset = data.offset;
@@ -69,9 +66,9 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
 
         private string filename;
 
-        public string UniqueStringID { get { return "NekoVol1-" + filename; } }
+        public string UniqueStringID { get { return "NekoVol2-" + filename; } }
         public string Key { get { return "742877301"; } }
-        public Image LargeIcon { get { return new Bitmap(256, 256); } }
+        public Image LargeIcon { get { return new Bitmap(256,256); } }
         public Image SmallIcon { get { return nekoIcon; } }
 
         public ListViewItem ListViewItemCache { get; set; }
@@ -84,7 +81,7 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
             }
         }
 
-        public string Origin { get { return "NEKOPARA Vol.1"; } }
+        public string Origin { get { return "NEKOPARA Vol.2"; } }
 
         public Stream GetDataStream()
         {

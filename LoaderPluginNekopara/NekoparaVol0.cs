@@ -8,26 +8,37 @@ using System.Windows.Forms;
 
 namespace NekoPuppet.Plugins.Loaders.Nekopara
 {
-    public class NekoparaVol0CHaracterSource : NekoparaVolBase, ICharacterLoader
+    public class NekoparaVol0CharacterSource : NekoparaVolBase, ICharacterLoader
     {
         protected override string nekoparaVolDataPath { get { return Path.Combine(Directory.GetCurrentDirectory(), @"assets", @"NekoparaVol0", @"emotewin.xp3"); } }
 
         public List<ICharacterListViewItem> GetCharacters()
         {
-            byte[] data = GetInternalData();
-
-            List<FileData> fileData = new List<FileData>();
-
-            using (MemoryStream memStream = new MemoryStream(data))
-            using (BinaryReader reader2 = new BinaryReader(memStream))
+            try
             {
-                while (reader2.BaseStream.Position < reader2.BaseStream.Length)
-                {
-                    ReadData(reader2, fileData);
-                }
-            }
+                byte[] data = GetInternalData();
 
-            return fileData.Where(dr => dr.Filename.EndsWith(".psb")).Select(dr => (ICharacterListViewItem)new NekoparaVol0CharacterData(dr, this)).ToList();
+                List<FileData> fileData = new List<FileData>();
+
+                using (MemoryStream memStream = new MemoryStream(data))
+                using (BinaryReader reader2 = new BinaryReader(memStream))
+                {
+                    while (reader2.BaseStream.Position < reader2.BaseStream.Length)
+                    {
+                        ReadData(reader2, fileData);
+                    }
+                }
+
+                return fileData.Where(dr => dr.Filename.EndsWith(".psb")).Select(dr => (ICharacterListViewItem)new NekoparaVol0CharacterData(dr, this)).ToList();
+            }
+            catch (FileNotFoundException)
+            {
+                return null;
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return null;
+            }
         }
 
     }
@@ -39,11 +50,11 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
         private UInt64 size;
         private UInt64 zsize;
 
-        NekoparaVol0CHaracterSource intr;
+        NekoparaVol0CharacterSource intr;
 
         private static Image nekoIcon = Resource.thumb_small_nekopara;
 
-        public NekoparaVol0CharacterData(NekoparaVol0CHaracterSource.FileData data, NekoparaVol0CHaracterSource intr)
+        public NekoparaVol0CharacterData(NekoparaVol0CharacterSource.FileData data, NekoparaVol0CharacterSource intr)
         {
             this.filename = data.Filename;
             this.offset = data.offset;

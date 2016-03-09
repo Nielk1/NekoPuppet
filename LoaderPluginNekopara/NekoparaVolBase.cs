@@ -22,6 +22,9 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
 
         protected byte[] GetInternalData()
         {
+            if (!File.Exists(nekoparaVolDataPath))
+                throw new FileNotFoundException("Data file not found", nekoparaVolDataPath);
+
             using (FileStream fs = File.OpenRead(nekoparaVolDataPath))
             using (BinaryReader reader = new BinaryReader(fs))
             {

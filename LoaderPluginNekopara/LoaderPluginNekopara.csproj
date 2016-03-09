@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NekoparaVol2.cs" />
     <Compile Include="NekoparaVol0.cs" />
     <Compile Include="NekoparaVol1.cs" />
     <Compile Include="NekoparaVolBase.cs" />

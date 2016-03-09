@@ -24,8 +24,15 @@ namespace NekoPuppet.Plugins.Loaders.MontDaughterRem
 
         public List<ICharacterListViewItem> GetCharacters()
         {
-            List<string> characters = Directory.GetFiles(montDaughterRemDataPath, "emote_cmp.bytes", SearchOption.AllDirectories).AsEnumerable().ToList(); ;
-            return characters.Select(dr => (ICharacterListViewItem)new MontDaughterRemCharacterData(dr, dr.Remove(0, montDaughterRemDataPath.Length + 1), this)).ToList();
+            try
+            {
+                List<string> characters = Directory.GetFiles(montDaughterRemDataPath, "emote_cmp.bytes", SearchOption.AllDirectories).AsEnumerable().ToList(); ;
+                return characters.Select(dr => (ICharacterListViewItem)new MontDaughterRemCharacterData(dr, dr.Remove(0, montDaughterRemDataPath.Length + 1), this)).ToList();
+            }
+            catch (DirectoryNotFoundException)
+            {
+                return null;
+            }
         }
 
         public Stream GetFileStream(string filepath)
