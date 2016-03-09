@@ -2,12 +2,14 @@
 using NekoPuppet.Plugins;
 using SharpDX;
 using SharpDX.Direct3D9;
+using SharpDX.DXGI;
 using SharpDX.Windows;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -16,6 +18,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Device = SharpDX.Direct3D9.Device;
 
 namespace NekoPuppet
 {
@@ -26,7 +29,10 @@ namespace NekoPuppet
         private EnhancedRenderForm renderForm;
         private Emote emote;
         private Device _device;
-        private List<EmotePlayer> players = new List<EmotePlayer>();
+        //private List<EmotePlayer> players = new List<EmotePlayer>();
+
+        private EmotePlayer character;
+        private EmotePlayer characterOffhand;
 
         const double REFRESH = 1.0 / 50.0;
         private double elaspedTime;
@@ -82,14 +88,14 @@ namespace NekoPuppet
                 Key = "742877301",
                 Ver = InterfaceVersion.NEKO0,
             };
-            //EmoteModuleMetadata meta = new EmoteModuleMetadata()
+            emoteLibs.Add(meta);
+            //emoteLibs.Add(new EmoteModuleMetadata()
             //{
             //    Text = @"NEKOPARA Vol.1",
             //    Path = @"neko1\emotedriver.dll",
             //    Key = "742877301",
             //    Ver = InterfaceVersion.NEKO1,
-            //};
-            emoteLibs.Add(meta);
+            //});
 
 
 
@@ -153,6 +159,150 @@ namespace NekoPuppet
 
             LoadCharacters();
         }
+
+
+
+
+
+
+
+
+        //private void RenderBitmap(Stream stream, string key)
+        //{
+        //    //EmoteModuleMetadata meta = emoteLibs.First();
+
+        //    //Emote tmp_emote = new Emote(this.Handle, 128, 128, true, true);
+        //    //tmp_emote.LoadEmoteEngine(Path.Combine(Directory.GetCurrentDirectory(), @"engines", meta.Path), meta.Ver);
+        //    //tmp_emote.EmoteInit();
+
+
+
+        //    //EmotePlayer player = tmp_emote.CreatePlayer("TMP", TransCryptCharacter(stream, key, meta.Key));
+        //    //player.Show();
+
+        //    //player.SetScale(0.4f, 0, 0);
+        //    //player.SetCoord(0, 50, 0, 0);
+        //    ////player.StartWind(0f, 1f, 0.8f, 0.5f, 0.8f);
+        //    //player.SetSmoothing(true);
+
+        //    ////tmp_emote.Draw();
+
+        //    //Device tmp_device = new Device(new IntPtr(tmp_emote.D3Device));
+
+        //    //lock (tmp_emote)
+        //    //{
+        //    //    //tmp_emote.Update((float)REFRESH * 1000);
+
+        //    //    //_device.Clear(ClearFlags.Target, Color.Transparent, 1.0f, 0);
+        //    //    //_device.Clear(ClearFlags.Target, new SharpDX.Mathematics.Interop.RawColorBGRA(0, 0, 0, 0), 1.0f, 0);
+        //    //    tmp_device.Clear(ClearFlags.Target, new SharpDX.Mathematics.Interop.RawColorBGRA(0, 255, 0, 127), 1.0f, 0);
+
+        //    //    tmp_device.BeginScene();
+        //    //    //device.UpdateSurface(device.GetBackBuffer(0,0),new Surface(new IntPtr(e.D3DSurface)));
+        //    //    tmp_emote.Draw();
+        //    //    tmp_device.EndScene();
+        //    //    try
+        //    //    {
+        //    //        tmp_device.Present();
+        //    //    }
+        //    //    catch (SharpDXException exception)
+        //    //    {
+        //    //        if (exception.ResultCode == SharpDX.Direct3D9.ResultCode.DeviceLost)
+        //    //        {
+        //    //            Console.WriteLine("Device Lost Detected");
+        //    //            tmp_emote.OnDeviceLost();
+        //    //            Result r;
+        //    //            while ((r = tmp_device.TestCooperativeLevel()) == SharpDX.Direct3D9.ResultCode.DeviceLost)
+        //    //            {
+        //    //                Thread.Sleep(5);
+        //    //            }
+        //    //            r = tmp_device.TestCooperativeLevel();
+        //    //            if (r == SharpDX.Direct3D9.ResultCode.DeviceNotReset)
+        //    //            {
+        //    //                tmp_emote.D3DReset();
+        //    //                tmp_emote.OnDeviceReset();
+        //    //                //e.D3DInitRenderState();
+        //    //            }
+        //    //            else
+        //    //            {
+        //    //                Console.WriteLine(r);
+        //    //            }
+        //    //            //r = _device.TestCooperativeLevel();
+        //    //        }
+        //    //        else
+        //    //        {
+        //    //            throw;
+        //    //        }
+        //    //    }
+
+
+
+
+
+
+
+
+
+
+        //    //    //SharpDX.Direct3D9.Surface tmp_surf = new SharpDX.Direct3D9.Surface(new IntPtr(tmp_emote.D3DSurface));
+        //    //    //SharpDX.Direct3D9.Surface tmp_surf = SharpDX.Direct3D9.Surface.CreateOffscreenPlain(tmp_device,  Screen.PrimaryScreen.Bounds.Width, Screen.PrimaryScreen.Bounds.Height, SharpDX.Direct3D9.Format.A8R8G8B8, Pool.Scratch);
+        //    //    //SharpDX.Direct3D9.Surface tmp_surf = SharpDX.Direct3D9.Surface.CreateOffscreenPlain(tmp_device,  128, 128, SharpDX.Direct3D9.Format.A8R8G8B8, Pool.Scratch);
+        //    //    //SharpDX.Direct3D9.Surface tmp_surf = tmp_device.GetBackBuffer(0,0);
+        //    //    //tmp_device.GetFrontBufferData(0, tmp_surf);
+        //    //    //tmp_device.GetFrontBufferData(0, s);
+
+        //    //    SharpDX.Direct3D9.Surface tmp_surf = tmp_device.GetRenderTarget(0);
+
+        //    //    DataRectangle dataRectangle = tmp_surf.LockRectangle(LockFlags.None);
+
+
+        //    //    //int size = dataRectangle.Pitch * 128 * 128;
+        //    //    int size = 4 * 128 * 128;
+        //    //    byte[] managedArray = new byte[size];
+        //    //    Marshal.Copy(dataRectangle.DataPointer, managedArray, 0, size);
+
+        //    //    int sourceX = 0;
+        //    //    int sourceY = 0;
+        //    //    int sourceHeight = 128;
+        //    //    int sourceWidth = 128;
+
+        //    //    /*for (int k = sourceX; k < sourceHeight; k++)
+        //    //    {
+        //    //        //for (int l = sourceY; l < sourceWidth; l++)
+        //    //        //{
+        //    //            Marshal.Copy(dataRectangle.DataPointer + (k * Screen.PrimaryScreen.Bounds.Width), managedArray, (k * sourceWidth), sourceWidth * 4);
+        //    //        //}
+        //    //    }*/
+        //    //    tmp_surf.UnlockRectangle();
+
+        //    //    //for (int k = sourceX; k < sourceHeight; k++)
+        //    //    //{
+        //    //    //    for (int l = sourceY; l < sourceWidth; l++)
+        //    //    //    {
+        //    //    //        managedArray[(k * dataRectangle.Pitch) + (l * 4)];
+        //    //    //    }
+        //    //    //}
+
+        //    //    Bitmap output = new Bitmap(128, 128);
+        //    //    Rectangle rect = new Rectangle(0, 0, output.Width, output.Height);
+        //    //    BitmapData bmpData = output.LockBits(rect, ImageLockMode.ReadWrite, output.PixelFormat);
+        //    //    IntPtr ptr = bmpData.Scan0;
+        //    //    System.Runtime.InteropServices.Marshal.Copy(managedArray, 0, ptr, managedArray.Length);
+        //    //    output.UnlockBits(bmpData);
+
+        //    //    pictureBox1.Image = output;
+
+        //    //    tmp_emote.Dispose();
+        //    //}
+        //}
+
+
+
+
+
+
+
+
 
         private void LoadCharacters()
         {
@@ -339,38 +489,66 @@ namespace NekoPuppet
 
         public void ResizeRenderArea(int w, int h)
         {
-            //?
+            //how?
         }
 
         private void LoadEmotePlayer()
         {
             if (listView1.SelectedIndices.Count > 0)
             {
-                lock (emote)
+                foreach (int x in listView1.SelectedIndices)
                 {
                     //lock (emote)
                     {
-                        players.ForEach(dr => emote.DeletePlayer(dr));
-                        players.Clear();
+                        ICharacterListViewItem item = (ICharacterListViewItem)listView1.Items[x].Tag;
+                        LoadCharacter(item);
                     }
-                    foreach (int x in listView1.SelectedIndices)
+                    break;
+                }
+            }
+        }
+
+        public void LoadCharacter(ICharacterListViewItem item)
+        {
+            lock (emote)
+            {
+                //lock (emote)
+                {
+                    //players.ForEach(dr => emote.DeletePlayer(dr));
+                    //players.Clear();
+
+                    if (characterOffhand != null)
                     {
-                        //lock (emote)
-                        {
-                            ICharacterListViewItem item = (ICharacterListViewItem)listView1.Items[x].Tag;
-
-                            EmotePlayer player = emote.CreatePlayer(item.Name, TransCryptCharacter(item.GetDataStream(), item.Key, emoteLibs.First().Key));
-                            player.Show();
-
-                            player.SetScale(0.4f, 0, 0);
-                            player.SetCoord(0, 50, 0, 0);
-                            player.StartWind(0f, 1f, 0.8f, 0.5f, 0.8f);
-                            player.SetSmoothing(true);
-
-                            players.Add(player);
-                        }
+                        emote.DeletePlayer(characterOffhand);
+                    }
+                    characterOffhand = character;
+                    if (characterOffhand != null)
+                    {
+                        characterOffhand.SetColor(0xffffff00, 20, 0.5f);
                     }
                 }
+
+
+                EmotePlayer player = emote.CreatePlayer(item.Name, TransCryptCharacter(item.GetDataStream(), item.Key, emoteLibs.First().Key));
+
+                player.SetScale(0.4f, 0, 0);
+                player.SetCoord(0, 50, 0, 0);
+                player.StartWind(0f, 1f, 0.8f, 0.5f, 0.8f);
+                player.SetSmoothing(true);
+                player.SetColor(0xffffff00, 0, 0.0f);
+
+                player.Show();
+
+                player.SetColor(0xffffffff, 20, 0.5f);
+
+                //players.Add(player);
+
+                character = player;
+
+
+                //RenderBitmap(item.GetDataStream(), item.Key);
+
+
             }
         }
 
@@ -387,25 +565,24 @@ namespace NekoPuppet
             return CharacterCrypto(CharacterCrypto(stream, keyIn), keyOut);
         }
 
+        // thanks to marcussacana for his cleanup of this function
+        // http://pastebin.com/basgJUgG
         private Stream CharacterCrypto(Stream stream, string passKey)
         {
-            UInt32 _ecx_0x10_ = 0;
-            byte unkIter = 0x0A; // might be string length?
+            UInt32 MainKey = 0;
+            byte unkIter = 0x0A; // might be string length?  Investigate
             for (byte itr = 0; itr < passKey.Length; itr++)
             {
-                _ecx_0x10_ = _ecx_0x10_ * unkIter + ((uint)passKey[itr] - 0x30);
+                MainKey = MainKey * unkIter + ((uint)passKey[itr] - 0x30);
             }
 
-            //UInt32 _ecx_0x00_ = 0x0F1F38B8;
-            UInt32 _ecx_0x04_ = 0x075BCD15; // fixed
-            UInt32 _ecx_0x08_ = 0x159A55E5; // fixed
-            UInt32 _ecx_0x0C_ = 0x1F123BB5; // fixed
-            UInt32 _ecx_0x14_ = 0x00000000; // fixed
-            UInt32 _ecx_0x18_ = 0x00000000; // fixed
+            UInt32 Key1 = 0x075BCD15;
+            UInt32 NextKey = 0x159A55E5;
+            UInt32 Key2 = 0x1F123BB5;
+            UInt32 XorKey = 0x00000000;
 
-            UInt32 eax;
-            UInt32 esi;
-            UInt32 edx;
+            UInt32 RstKey;
+            UInt32 TmpXor;
 
             byte[] retData = new byte[stream.Length];
 
@@ -432,8 +609,8 @@ namespace NekoPuppet
                     UInt32 Unknown2 = reader.ReadUInt32(); // unknown
                     writer.Write(Unknown2);
 
-                    UInt32 UnkOff3 = reader.ReadUInt32(); // Unknown Offset 3
-                    writer.Write(UnkOff3);
+                    UInt32 ResOffTable = reader.ReadUInt32();
+                    writer.Write(ResOffTable);
 
                     UInt32 UnkOff4 = reader.ReadUInt32(); // Unknown Offset 4
                     writer.Write(UnkOff4);
@@ -444,39 +621,27 @@ namespace NekoPuppet
                     UInt32 Unknown5 = reader.ReadUInt32(); // Unknown
                     writer.Write(Unknown5);
 
-                    //ASSERT(reader.BaseStream.Position == DataOff1);
-                    while (reader.BaseStream.Position < UnkOff3)
+                    //decrypt and copy file data
+                    while (reader.BaseStream.Position < ResOffTable)
                     {
-                        if (_ecx_0x14_ == 0x00000000)
+                        if (XorKey == 0)
                         {
-                            eax = _ecx_0x04_;
-                            esi = _ecx_0x10_;
-                            edx = eax;
-                            edx = edx << 0x0B;
-                            edx ^= eax;
-                            eax = _ecx_0x08_;
-                            _ecx_0x04_ = eax;
-                            eax = _ecx_0x0C_;
-                            _ecx_0x08_ = eax;
-                            eax = esi;
-                            eax = eax >> 0x0B;
-                            eax ^= edx;
-                            eax = eax >> 0x08;
-                            eax ^= esi;
-                            eax ^= edx;
-                            _ecx_0x0C_ = esi;
-                            _ecx_0x10_ = eax;
-                            _ecx_0x14_ = eax;
-                            _ecx_0x18_ = 0x00000004;
+                            TmpXor = (Key1 << 11) ^ Key1;
+                            Key1 = NextKey;
+                            NextKey = Key2;
+                            RstKey = ((MainKey >> 11) ^ TmpXor) >> 8;
+                            RstKey = (RstKey ^ TmpXor) ^ MainKey;
+                            Key2 = MainKey;
+                            MainKey = RstKey;
+                            XorKey = RstKey;
                         }
-                        byte dl = (byte)_ecx_0x14_; // truncate, get lowest byte
                         byte Data = reader.ReadByte();
-                        Data ^= dl;
+                        Data ^= (byte)XorKey; // truncate, get lowest byte
                         writer.Write(Data);
-                        _ecx_0x14_ = _ecx_0x14_ >> 0x08;
-                        _ecx_0x18_--;
+                        XorKey >>= 8;
                     }
 
+                    // copy the rest of the file
                     int len = (int)(reader.BaseStream.Length - reader.BaseStream.Position);
                     writer.Write(reader.ReadBytes(len), 0, len);
                 }
