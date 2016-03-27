@@ -70,6 +70,7 @@
     <Reference Include="WindowsFormsIntegration" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CharacterContext.cs" />
     <Compile Include="EmoteModuleMetadata.cs" />
     <Compile Include="EnhancedRenderForm.cs">
       <SubType>Form</SubType>
@@ -86,6 +87,7 @@
     <Compile Include="FunctionGraphForm.Designer.cs">
       <DependentUpon>FunctionGraphForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="CharacterControlInterface.cs" />
     <Compile Include="Plugins\ICharacterLoader.cs" />
     <Compile Include="Plugins\IControlNode.cs" />
     <Compile Include="MainForm.cs">

@@ -69,6 +69,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
         ConnectorViewModel conInMax;
         ConnectorViewModel conInMin;
 
+        // non executing nodes can take advantage of a weak data cache
+        // triggered nodes can simply store the data when triggered until triggered again
         private ConditionalWeakTable<object, Cache> DataCache = new ConditionalWeakTable<object, Cache>();
 
         public override string Type { get { return ScaledRadialNodeFactory.TYPESTRING; } }
@@ -121,8 +123,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
             this.OutputConnectors.Add(conOutY);
             this.InputConnectors.Add(conInX);
             this.InputConnectors.Add(conInY);
-            this.InputConnectors.Add(conInMax);
             this.InputConnectors.Add(conInMin);
+            this.InputConnectors.Add(conInMax);
 
             // Set Name
             Name = (string)data["name"];
@@ -167,6 +169,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
 
         public override void Dispose() { }
 
+        // called when something tries to ask this node for a value
         public override object GetValue(ConnectorViewModel connector, object context)
         {
             if (conOutX == connector || conOutY == connector)
@@ -175,6 +178,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
                 double outX;
                 double outY;
 
+                // if the cache context is not set or there is no data cached for that context
+                // ask attached nodes for values so we can calculate our output
                 if (context == null || !DataCache.TryGetValue(context, out cache))
                 {
                     NodeDataNumeric MinNodeVal = conInMin.AttachedConnections.Select(connection =>
@@ -264,7 +269,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.DeadZone
 
                     //Console.WriteLine("Storing data for {0,8:X8}", RuntimeHelpers.GetHashCode(context));
                 }
-                else
+                else // we already have the output for this context cached, re-output it
                 {
                     outX = cache.X;
                     outY = cache.Y;

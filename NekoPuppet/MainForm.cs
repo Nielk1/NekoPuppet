@@ -34,6 +34,21 @@ namespace NekoPuppet
         private EmotePlayer character;
         private EmotePlayer characterOffhand;
 
+        private CharacterContext characterContext;
+
+        private CharacterControlInterface characterIntf;
+        private CharacterControlInterface characterOffhandIntf;
+
+        public CharacterControlInterface CharacterInterface
+        {
+            get { return characterIntf; }
+        }
+
+        public CharacterControlInterface CharacterOffhandInterface
+        {
+            get { return characterOffhandIntf; }
+        }
+
         const double REFRESH = 1.0 / 50.0;
         private double elaspedTime;
         private PreciseTimer _timer = new PreciseTimer();
@@ -55,6 +70,7 @@ namespace NekoPuppet
         public MainForm()
         {
             InitializeComponent();
+            characterContext = CharacterContext.CreateCharacterContext(this);
         }
 
         private ICharacterLoader[] LoadAssembly(string assemblyPath)
@@ -522,11 +538,14 @@ namespace NekoPuppet
                     if (characterOffhand != null)
                     {
                         emote.DeletePlayer(characterOffhand);
+                        characterOffhandIntf = null; // allow falloff via GC, might look into disposable implementation if needed
                     }
                     characterOffhand = character;
+                    characterOffhandIntf = characterIntf;
                     if (characterOffhand != null)
                     {
-                        characterOffhand.SetColor(0xffffff00, 20, 0.5f);
+                        //characterOffhand.SetColor(0xffffff00, 20, 0.5f);
+                        characterOffhand.Hide(); // temporary
                     }
                 }
 
@@ -537,16 +556,16 @@ namespace NekoPuppet
                 player.SetCoord(0, 50, 0, 0);
                 player.StartWind(0f, 1f, 0.8f, 0.5f, 0.8f);
                 player.SetSmoothing(true);
-                player.SetColor(0xffffff00, 0, 0.0f);
+                //player.SetColor(0xffffff00, 0, 0.0f);
 
                 player.Show();
 
-                player.SetColor(0xffffffff, 20, 0.5f);
+                //player.SetColor(0xffffffff, 20, 0.5f);
 
                 //players.Add(player);
 
                 character = player;
-
+                characterIntf = new CharacterControlInterface(character);
 
                 //RenderBitmap(item.GetDataStream(), item.Key);
 
@@ -623,24 +642,34 @@ namespace NekoPuppet
                     UInt32 Unknown5 = reader.ReadUInt32(); // Unknown
                     writer.Write(Unknown5);
 
-                    //decrypt and copy file data
-                    while (reader.BaseStream.Position < ResOffTable)
+                    if (MainKey == 0)
                     {
-                        if (XorKey == 0)
+                        while (reader.BaseStream.Position < ResOffTable)
                         {
-                            TmpXor = (Key1 << 11) ^ Key1;
-                            Key1 = NextKey;
-                            NextKey = Key2;
-                            RstKey = ((MainKey >> 11) ^ TmpXor) >> 8;
-                            RstKey = (RstKey ^ TmpXor) ^ MainKey;
-                            Key2 = MainKey;
-                            MainKey = RstKey;
-                            XorKey = RstKey;
+                            writer.Write(reader.ReadByte());
                         }
-                        byte Data = reader.ReadByte();
-                        Data ^= (byte)XorKey; // truncate, get lowest byte
-                        writer.Write(Data);
-                        XorKey >>= 8;
+                    }
+                    else
+                    {
+                        //decrypt and copy file data
+                        while (reader.BaseStream.Position < ResOffTable)
+                        {
+                            if (XorKey == 0)
+                            {
+                                TmpXor = (Key1 << 11) ^ Key1;
+                                Key1 = NextKey;
+                                NextKey = Key2;
+                                RstKey = ((MainKey >> 11) ^ TmpXor) >> 8;
+                                RstKey = (RstKey ^ TmpXor) ^ MainKey;
+                                Key2 = MainKey;
+                                MainKey = RstKey;
+                                XorKey = RstKey;
+                            }
+                            byte Data = reader.ReadByte();
+                            Data ^= (byte)XorKey; // truncate, get lowest byte
+                            writer.Write(Data);
+                            XorKey >>= 8;
+                        }
                     }
 
                     // copy the rest of the file

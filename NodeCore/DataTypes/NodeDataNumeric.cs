@@ -8,6 +8,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.Data
         private Int16 valInt16;
         private Byte valByte;
         private Double valDouble;
+        private Single valSingle;
 
         private TypeTrack Track = TypeTrack.Empty;
 
@@ -16,7 +17,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.Data
             Empty,
             Byte,
             Int16,
-            Double
+            Double,
+            Single
         }
 
         private NodeDataNumeric(Int16 val)
@@ -37,6 +39,12 @@ namespace NekoPuppet.Plugins.Nodes.Core.Data
             this.valDouble = val;
         }
 
+        private NodeDataNumeric(Single val)
+        {
+            this.Track = TypeTrack.Single ;
+            this.valSingle = val;
+        }
+
         public NodeDataNumeric()
         {
             this.Track = TypeTrack.Empty;
@@ -54,8 +62,28 @@ namespace NekoPuppet.Plugins.Nodes.Core.Data
                     return (double)valInt16;
                 case TypeTrack.Double:
                     return valDouble;
+                case TypeTrack.Single:
+                    return (double)valDouble;
             }
             return 0d;
+        }
+
+        public float GetSingle()
+        {
+            switch (Track)
+            {
+                case TypeTrack.Empty:
+                    return 0f;
+                case TypeTrack.Byte:
+                    return (float)valByte;
+                case TypeTrack.Int16:
+                    return (float)valInt16;
+                case TypeTrack.Double:
+                    return (float)valDouble;
+                case TypeTrack.Single:
+                    return valSingle;
+            }
+            return 0f;
         }
 
         public override string ToString()
@@ -70,6 +98,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.Data
                     return string.Format("[Int16:{0}]", valInt16);
                 case TypeTrack.Double:
                     return string.Format("[Double:{0: 0.0000000000;-0.0000000000}]", valDouble); ;
+                case TypeTrack.Single:
+                    return string.Format("[Single:{0: 0.0000000000;-0.0000000000}]", valSingle); ;
             }
             return "[?]";
         }
@@ -85,6 +115,11 @@ namespace NekoPuppet.Plugins.Nodes.Core.Data
         }
 
         public static NodeDataNumeric FromDouble(Double val)
+        {
+            return new NodeDataNumeric(val);
+        }
+
+        public static NodeDataNumeric FromSingle(Single val)
         {
             return new NodeDataNumeric(val);
         }
