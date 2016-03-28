@@ -40,12 +40,12 @@
             this.label4 = new System.Windows.Forms.Label();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.btnShowNodes = new System.Windows.Forms.Button();
+            this.listView1 = new NekoPuppet.CharacterListView();
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
             this.tsbRefresh = new System.Windows.Forms.ToolStripButton();
-            this.listView1 = new NekoPuppet.CharacterListView();
             ((System.ComponentModel.ISupportInitialize)(this.nudWW)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudWH)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudRW)).BeginInit();
@@ -218,9 +218,25 @@
             this.btnShowNodes.Name = "btnShowNodes";
             this.btnShowNodes.Size = new System.Drawing.Size(203, 23);
             this.btnShowNodes.TabIndex = 8;
-            this.btnShowNodes.Text = "Function Graph Editor";
+            this.btnShowNodes.Text = "Node Graph Editor";
             this.btnShowNodes.UseVisualStyleBackColor = true;
             this.btnShowNodes.Click += new System.EventHandler(this.btnShowNodes_Click);
+            // 
+            // listView1
+            // 
+            this.listView1.DataSource = null;
+            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listView1.Enabled = false;
+            this.listView1.Location = new System.Drawing.Point(0, 25);
+            this.listView1.MultiSelect = false;
+            this.listView1.Name = "listView1";
+            this.listView1.Size = new System.Drawing.Size(539, 232);
+            this.listView1.TabIndex = 0;
+            this.listView1.UseCompatibleStateImageBehavior = false;
+            this.listView1.View = System.Windows.Forms.View.Details;
+            this.listView1.VirtualMode = true;
+            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
+            this.listView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listView1_KeyDown);
             // 
             // toolStrip1
             // 
@@ -279,22 +295,6 @@
             this.tsbRefresh.Text = "toolStripButton2";
             this.tsbRefresh.Click += new System.EventHandler(this.tsbRefresh_Click);
             // 
-            // listView1
-            // 
-            this.listView1.DataSource = null;
-            this.listView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.listView1.Enabled = false;
-            this.listView1.Location = new System.Drawing.Point(0, 25);
-            this.listView1.MultiSelect = false;
-            this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(539, 232);
-            this.listView1.TabIndex = 0;
-            this.listView1.UseCompatibleStateImageBehavior = false;
-            this.listView1.View = System.Windows.Forms.View.Details;
-            this.listView1.VirtualMode = true;
-            this.listView1.DoubleClick += new System.EventHandler(this.listView1_DoubleClick);
-            this.listView1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.listView1_KeyDown);
-            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -303,7 +303,6 @@
             this.Controls.Add(this.splitContainer1);
             this.Name = "MainForm";
             this.Text = "NekoPuppet";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
             this.Load += new System.EventHandler(this.MainForm_Load);
             ((System.ComponentModel.ISupportInitialize)(this.nudWW)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudWH)).EndInit();

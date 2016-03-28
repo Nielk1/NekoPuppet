@@ -137,8 +137,6 @@ namespace NekoPuppet.Plugins.Nodes.Core.Math
 
         public override void Start() { }
 
-        public override void Stop() { }
-
         public override void Execute(object context) { }
 
         public override void Dispose() { }

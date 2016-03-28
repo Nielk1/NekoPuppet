@@ -6,11 +6,10 @@ using Newtonsoft.Json.Linq;
 using System.Windows.Forms;
 using FunctionalNetworkModel;
 using NekoPuppet.Plugins.Nodes.Core.Data;
-using NodeCore.DataTypes;
 
 namespace NekoPuppet.Plugins.Nodes.Core.XInput
 {
-    class XInputControllerAnalogNodeFactory : IControlNodeFactoryPlugin
+    class XInputControllerNodeFactory : IControlNodeFactoryPlugin
     {
         public const string TYPESTRING = "SharpDX.XInput.Controller.Analog"; // Type for note display and save/load
         public const string NODEMENU = "SharpDX/XInput/Controller"; // Menu, / delimited
@@ -20,23 +19,23 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
         public string NodeMenu { get { return NODEMENU; } }
         public string Name { get { return NAME; } }
 
-        public XInputControllerAnalogNodeFactory()
+        public XInputControllerNodeFactory()
         {
 
         }
 
         public NodeViewModel CreateNode()
         {
-            return new XInputControllerAnalogNode();
+            return new XInputControllerNode();
         }
 
         public NodeViewModel CreateNode(JObject data, Guid[] executeIn, Guid[] executeOut, Guid[] dataIn, Guid[] dataOut)
         {
-            return new XInputControllerAnalogNode(data, executeIn, executeOut, dataIn, dataOut);
+            return new XInputControllerNode(data, executeIn, executeOut, dataIn, dataOut);
         }
     }
 
-    class XInputControllerAnalogNode : NodeViewModel
+    class XInputControllerNode : NodeViewModel
     {
         class NodeData : PropertyDialogCollection
         {
@@ -62,13 +61,12 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
         ConnectorViewModel conRightThumbX;
         ConnectorViewModel conRightThumbY;
         ConnectorViewModel conRightTrigger;
-        //ConnectorViewModel conButtons;
 
         private UserIndex currentUser;
         private Controller controller;
         private State? cState;
 
-        public override string Type { get { return XInputControllerAnalogNodeFactory.TYPESTRING; } }
+        public override string Type { get { return XInputControllerNodeFactory.TYPESTRING; } }
 
         public override string Note
         {
@@ -105,7 +103,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
             }
         }
 
-        public XInputControllerAnalogNode() : base(XInputControllerAnalogNodeFactory.TYPESTRING)
+        public XInputControllerNode() : base(XInputControllerNodeFactory.TYPESTRING)
         {
             // Prepare Execution Connection
             conExecuted = new ExecutionConnectorViewModel();
@@ -121,7 +119,6 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
             conRightThumbX  = new ConnectorViewModel("RightThumbX", typeof(NodeDataNumeric));
             conRightThumbY  = new ConnectorViewModel("RightThumbY", typeof(NodeDataNumeric));
             conRightTrigger = new ConnectorViewModel("RightTrigger", typeof(NodeDataNumeric));
-            //conButtons = new ConnectorViewModel("Buttons", typeof(NodeDataXInputButtons));
 
             this.OutputConnectors.Add(conLeftThumbX);
             this.OutputConnectors.Add(conLeftThumbY);
@@ -129,7 +126,6 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
             this.OutputConnectors.Add(conRightThumbX);
             this.OutputConnectors.Add(conRightThumbY);
             this.OutputConnectors.Add(conRightTrigger);
-            //this.OutputConnectors.Add(conButtons);
 
             // State Values
             currentUser = UserIndex.One;
@@ -139,7 +135,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
             dlgEdit = new PropertyDialog();
         }
 
-        public XInputControllerAnalogNode(JObject data, Guid[] executeIn, Guid[] executeOut, Guid[] dataIn, Guid[] dataOut) : base(XInputControllerAnalogNodeFactory.TYPESTRING)
+        public XInputControllerNode(JObject data, Guid[] executeIn, Guid[] executeOut, Guid[] dataIn, Guid[] dataOut) : base(XInputControllerNodeFactory.TYPESTRING)
         {
             // Prepare Execution Connection
             conExecuted = new ExecutionConnectorViewModel(executeIn[0]);
@@ -156,23 +152,12 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
             conRightThumbY = new ConnectorViewModel("RightThumbY", typeof(NodeDataNumeric), dataOut[4]);
             conRightTrigger = new ConnectorViewModel("RightTrigger", typeof(NodeDataNumeric), dataOut[5]);
 
-            //if (dataIn.Length > 5)
-            //{
-            //    conButtons = new ConnectorViewModel("Buttons", typeof(NodeDataXInputButtons), dataOut[6]);
-            //}
-            //else
-            //{
-            //    conButtons = new ConnectorViewModel("Buttons", typeof(NodeDataXInputButtons));
-            //}
-
-
             this.OutputConnectors.Add(conLeftThumbX);
             this.OutputConnectors.Add(conLeftThumbY);
             this.OutputConnectors.Add(conLeftTrigger);
             this.OutputConnectors.Add(conRightThumbX);
             this.OutputConnectors.Add(conRightThumbY);
             this.OutputConnectors.Add(conRightTrigger);
-            //this.OutputConnectors.Add(conButtons);
 
             // Set Name
             Name = (string)data["name"];
@@ -210,7 +195,6 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
         }
 
         public override void Start() { }
-        public override void Stop() { }
 
         public override void Execute(object context) {
             if (controller.IsConnected)
@@ -254,8 +238,6 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
                     return NodeDataNumeric.FromInt16(cState.Value.Gamepad.RightThumbY);
                 if (conRightTrigger == connector)
                     return NodeDataNumeric.FromByte(cState.Value.Gamepad.RightTrigger);
-                //if (conButtons == connector)
-                //    return new NodeDataXInputButtons(cState.Value.Gamepad.Buttons);
             }
             return null;
         }
