@@ -64,6 +64,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.Debug
 
         public override void Start() { }
 
+        public override void Stop() { }
+
         public override void Execute(object context)
         {
             string output = this.Name;

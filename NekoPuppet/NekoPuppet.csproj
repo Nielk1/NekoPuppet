@@ -35,6 +35,10 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EmoteEngineNet, Version=0.1.5883.42365, Culture=neutral, processorArchitecture=x86">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Debug\EmoteEngineNet.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -161,10 +165,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\EmoteEngineNet\EmoteEngineNet\EmoteEngineNet.vcxproj">
-      <Project>{3377b619-5e41-4d18-b5ba-b99a4d3cf6a0}</Project>
-      <Name>EmoteEngineNet</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\FunctionalNodeGraphWPF\AdornedControl\AdornedControl.csproj">
       <Project>{94b81cb7-f8a6-44bc-bd71-e927f701e0d8}</Project>
       <Name>AdornedControl</Name>

@@ -72,7 +72,7 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
             dlgEdit = new PropertyDialog();
         }
 
-        public XInputConstantsNode(JObject data, Guid[] executeIn, Guid[] executeOut, Guid[] dataIn, Guid[] dataOut) : base(XInputControllerNodeFactory.TYPESTRING)
+        public XInputConstantsNode(JObject data, Guid[] executeIn, Guid[] executeOut, Guid[] dataIn, Guid[] dataOut) : base(XInputConstantsNodeFactory.TYPESTRING)
         {
             // Prepare Connections
             conLeftThumbDeadZone = new ConnectorViewModel("LeftThumbDeadZone", typeof(NodeDataNumeric), dataOut[0]);
@@ -111,6 +111,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.XInput
         }
 
         public override void Start() { }
+
+        public override void Stop() { }
 
         public override void Execute(object context) { }
 

@@ -149,11 +149,20 @@ namespace NekoPuppet.Plugins.Nodes.Core.Trigger
             worker.Start();
         }
 
+        public override void Stop()
+        {
+            if (ThreadRunning)
+            {
+                ThreadRunning = false;
+                //diposeInterlock.WaitOne();
+            }
+        }
+
         public override void Execute(object context) { }
 
         public override void Dispose()
         {
-            Stop();
+            Stop(); // not sure if this will fire, hopefully it will if the node is deleted from the graph (IT DOESN'T)
         }
 
         public override object GetValue(ConnectorViewModel connector, object context)
@@ -180,15 +189,6 @@ namespace NekoPuppet.Plugins.Nodes.Core.Trigger
                 }
             }
             //diposeInterlock.Release();
-        }
-
-        private void Stop()
-        {
-            if (ThreadRunning)
-            {
-                ThreadRunning = false;
-                //diposeInterlock.WaitOne();
-            }
         }
     }
 }

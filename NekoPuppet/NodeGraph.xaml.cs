@@ -277,7 +277,18 @@ namespace NekoPuppet
         /// </summary>
         private void DeleteSelectedNodes_Executed(object sender, ExecutedRoutedEventArgs e)
         {
-            this.ViewModel.DeleteSelectedNodes();
+            var nodesDeleted = this.ViewModel.DeleteSelectedNodes();
+
+            {
+                var target = NodeDeleted;
+                if (target != null)
+                {
+                    foreach (var node in nodesDeleted)
+                    {
+                        target(this, new NodeDeletedEventArgs() { Node = node });
+                    }
+                }
+            }
         }
 
         /// <summary>

@@ -75,10 +75,14 @@ namespace NekoPuppet.Plugins.Nodes.Core.Emote
 
             [Browsable(true)]
             [DisplayName("Name")]
+            [Category("Node")]
             public string NodeName { get; set; }
 
             [Browsable(true)]
             [TypeConverter(typeof(EmoteVarNameConverter))]
+            [DisplayName("Variable Name")]
+            [Category("Emote")]
+            [Description("Emote Player variable name.")]
             public string VarName
             {
                 get;
@@ -87,28 +91,34 @@ namespace NekoPuppet.Plugins.Nodes.Core.Emote
 
             private float _value;
             [Browsable(true)]
+            [Category("Emote")]
+            [Description("Value applied if no input is present.")]
             public float Value
             {
                 get { return _value; }
                 set
                 {
-                    _value = System.Math.Max(System.Math.Min(value, 5.0f), -5.0f);
+                    _value = System.Math.Max(System.Math.Min(value, 100.0f), -100.0f); // test limit
                 }
             }
 
             private float frameCount;
             [Browsable(true)]
+            [Category("Emote")]
+            [Description("FrameCount applied if no input is present.")]
             public float FrameCount
             {
                 get { return frameCount; }
                 set
                 {
-                    frameCount = System.Math.Max(System.Math.Min(value, 1000f), 0f); // test limit
+                    frameCount = System.Math.Max(System.Math.Min(value, 100f), 0f); // test limit
                 }
             }
 
             private float easing;
             [Browsable(true)]
+            [Category("Emote")]
+            [Description("Easing applied if no input is present.\r\nGiven as a ratio from 0.0 to 1.0")]
             public float Easing
             {
                 get { return easing; }
@@ -123,6 +133,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.Emote
 
         ExecutionConnectorViewModel conExecute;
         private ConnectorViewModel inputValue;
+        private ConnectorViewModel inputFrameCount;
+        private ConnectorViewModel inputEasing;
 
         //public override NodeExecutionType ExecutionType { get { return NodeExecutionType.Triggered; } }
 
@@ -139,7 +151,11 @@ namespace NekoPuppet.Plugins.Nodes.Core.Emote
         {
             get
             {
-                return string.Format("{0}: {1}", varName, value);
+                return string.Format("Name: {0}\r\n", varName) +
+                       "------DEFAULTS------\r\n" +
+                       string.Format("Value: {0}\r\n", value) +
+                       string.Format("FrameCount: {0}\r\n", frameCount) +
+                       string.Format("Easing: {0}\r\n", easing);
             }
         }
 
@@ -149,9 +165,13 @@ namespace NekoPuppet.Plugins.Nodes.Core.Emote
             // Prepare Connections
             conExecute = new ExecutionConnectorViewModel();
             inputValue = new ConnectorViewModel("Value", typeof(NodeDataNumeric));
+            inputFrameCount = new ConnectorViewModel("FrameCount", typeof(NodeDataNumeric));
+            inputEasing = new ConnectorViewModel("Easing", typeof(NodeDataNumeric));
 
             this.InputExecutionConnectors.Add(conExecute);
             this.InputConnectors.Add(inputValue);
+            this.InputConnectors.Add(inputFrameCount);
+            this.InputConnectors.Add(inputEasing);
 
             // State Values
             value = 0f;
@@ -172,9 +192,21 @@ namespace NekoPuppet.Plugins.Nodes.Core.Emote
             // Prepare Connections
             conExecute = new ExecutionConnectorViewModel(executeIn[0]);
             inputValue = new ConnectorViewModel("Value", typeof(NodeDataNumeric), dataIn[0]);
+            if (dataIn.Length > 1) // allow loading older node graph saves
+            {
+                inputFrameCount = new ConnectorViewModel("FrameCount", typeof(NodeDataNumeric), dataIn[1]);
+                inputEasing = new ConnectorViewModel("Easing", typeof(NodeDataNumeric), dataIn[2]);
+            }
+            else
+            {
+                inputFrameCount = new ConnectorViewModel("FrameCount", typeof(NodeDataNumeric));
+                inputEasing = new ConnectorViewModel("Easing", typeof(NodeDataNumeric));
+            }
 
             this.InputExecutionConnectors.Add(conExecute);
             this.InputConnectors.Add(inputValue);
+            this.InputConnectors.Add(inputFrameCount);
+            this.InputConnectors.Add(inputEasing);
 
             // Set Name
             Name = (string)data["name"];
@@ -227,6 +259,8 @@ namespace NekoPuppet.Plugins.Nodes.Core.Emote
 
         // Self execution
         public override void Start() { } // not self executing
+
+        public override void Stop() { }
 
         // Triggered execution
         public override void Execute(object context)

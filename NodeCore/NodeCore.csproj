@@ -52,13 +52,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataTypes\INodeDataBoolean.cs" />
+    <Compile Include="DataTypes\NodeDataStruct.cs" />
+    <Compile Include="DataTypes\NodeDataBoolean.cs" />
+    <Compile Include="DataTypes\NodeDataXInputButtons.cs" />
+    <Compile Include="Nodes\Control\ExpandStructData.cs" />
+    <Compile Include="Nodes\Control\Variable.cs" />
     <Compile Include="Nodes\Debugging\Console.cs" />
     <Compile Include="DataTypes\NodeDataNumeric.cs" />
     <Compile Include="Nodes\Emote\SetVariable.cs" />
-    <Compile Include="Nodes\Math\Constant.cs" />
+    <Compile Include="Nodes\Math\NumericConstant.cs" />
     <Compile Include="Nodes\Math\Multiply.cs" />
+    <Compile Include="Nodes\Routing\Data.cs" />
+    <Compile Include="Nodes\Routing\Execute.cs" />
     <Compile Include="Nodes\SharpDX\XInput\Controller\XInputConstants.cs" />
-    <Compile Include="Nodes\SharpDX\XInput\Controller\XInputController.cs" />
+    <Compile Include="Nodes\SharpDX\XInput\Controller\XInputControllerAnalog.cs" />
+    <Compile Include="Nodes\SharpDX\XInput\Controller\XInputControllerDigital.cs" />
     <Compile Include="Nodes\Trigger\Interval.cs" />
     <Compile Include="Nodes\DeadZone\ScaledRadial.cs" />
     <Compile Include="Nodes\Math\Sum.cs" />
