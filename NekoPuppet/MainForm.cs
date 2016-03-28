@@ -691,5 +691,10 @@ namespace NekoPuppet
         {
             functionGraph.Show();
         }
+
+        private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            functionGraph.NotifyNodesOfClose();
+        }
     }
 }

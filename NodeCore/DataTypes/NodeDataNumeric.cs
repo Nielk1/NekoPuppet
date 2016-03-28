@@ -1,9 +1,10 @@
 ﻿using FunctionalNetworkModel;
+using NodeCore.DataTypes;
 using System;
 
 namespace NekoPuppet.Plugins.Nodes.Core.Data
 {
-    public class NodeDataNumeric : INodeData
+    public class NodeDataNumeric : INodeData, INodeDataBoolean
     {
         private Int16 valInt16;
         private Byte valByte;
@@ -84,6 +85,24 @@ namespace NekoPuppet.Plugins.Nodes.Core.Data
                     return valSingle;
             }
             return 0f;
+        }
+
+        public bool GetBool()
+        {
+            switch (Track)
+            {
+                case TypeTrack.Empty:
+                    return false;
+                case TypeTrack.Byte:
+                    return valByte > 0x0;
+                case TypeTrack.Int16:
+                    return valInt16 > 0;
+                case TypeTrack.Double:
+                    return valDouble > 0d;
+                case TypeTrack.Single:
+                    return valSingle > 0f;
+            }
+            return false;
         }
 
         public override string ToString()

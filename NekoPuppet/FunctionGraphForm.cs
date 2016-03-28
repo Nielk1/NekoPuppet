@@ -55,6 +55,15 @@ namespace NekoPuppet
             });*/
         }
 
+        public void NotifyNodesOfClose()
+        {
+            List<FunctionalNetworkModel.NodeViewModel> nodes = this.nodeGraph1.ViewModel.Network.Nodes.ToList();
+            nodes.ForEach(node =>
+            {
+                //node = null; // will the GC be enough? NOPE
+                node.Stop();
+            });
+        }
 
         private IControlNodeFactoryPlugin[] LoadAssembly(string assemblyPath)
         {
@@ -88,6 +97,7 @@ namespace NekoPuppet
 
         private void NodeGraph1_NodeDeleted(object sender, NodeGraph.NodeDeletedEventArgs e)
         {
+            //e.Node.Stop();
             e.Node.Dispose();
         }
 
@@ -118,7 +128,7 @@ namespace NekoPuppet
                 var nodesCopy = this.nodeGraph1.ViewModel.Network.Nodes.ToArray();
                 foreach (var node in nodesCopy)
                 {
-                    if (node.IsSelected)
+                    //if (node.IsSelected)
                     {
                         nodeGraph1.ViewModel.DeleteNode(node);
                         node.Dispose();
@@ -152,7 +162,7 @@ namespace NekoPuppet
 
                                         model.X = dr["x"] != null && dr["x"].Type == JTokenType.Float ? (float)dr["x"] : 0f;
                                         model.Y = dr["y"] != null && dr["y"].Type == JTokenType.Float ? (float)dr["y"] : 0f;
-                                        nodeGraph1.ViewModel.CreateNode(model, /*position,*/ true);
+                                        NodeViewModel created = nodeGraph1.ViewModel.CreateNode(model, /*position,*/ false);
                                     }
                                 }
                             }
@@ -242,7 +252,7 @@ namespace NekoPuppet
 
                                     model.X = dr["x"] != null && dr["x"].Type == JTokenType.Float ? (float)dr["x"] : 0f;
                                     model.Y = dr["y"] != null && dr["y"].Type == JTokenType.Float ? (float)dr["y"] : 0f;
-                                    nodeGraph1.ViewModel.CreateNode(model, /*position,*/ true);
+                                    NodeViewModel created = nodeGraph1.ViewModel.CreateNode(model, /*position,*/ false);
                                 }
                             }
                         }

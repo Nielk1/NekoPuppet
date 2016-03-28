@@ -614,7 +614,7 @@ namespace NekoPuppet
         /// <summary>
         /// Delete the currently selected nodes from the view-model.
         /// </summary>
-        public void DeleteSelectedNodes()
+        public NodeViewModel[] DeleteSelectedNodes()
         {
             // Take a copy of the selected nodes list so we can delete nodes while iterating.
             var nodesCopy = this.Network.Nodes.ToArray();
@@ -625,6 +625,7 @@ namespace NekoPuppet
                     DeleteNode(node);
                 }
             }
+            return nodesCopy;
         }
 
         /// <summary>
