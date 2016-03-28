@@ -23,13 +23,15 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
                 byte[] data = GetInternalData();
 
                 List<FileData> fileData = new List<FileData>();
+                Queue<FileData> fileDataQueue = new Queue<FileData>();
+                bool ReadFirstFile = false;
 
                 using (MemoryStream memStream = new MemoryStream(data))
                 using (BinaryReader reader2 = new BinaryReader(memStream))
                 {
                     while (reader2.BaseStream.Position < reader2.BaseStream.Length)
                     {
-                        ReadData(reader2, fileData);
+                        ReadData(reader2, fileData, fileDataQueue, ref ReadFirstFile);
                     }
                 }
 

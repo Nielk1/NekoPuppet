@@ -22,6 +22,8 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
 
         protected byte[] GetInternalData()
         {
+            //File.AppendAllText("log.txt", string.Format("Reading \"{0}\"\r\n", nekoparaVolDataPath));
+
             if (!File.Exists(nekoparaVolDataPath))
                 throw new FileNotFoundException("Data file not found", nekoparaVolDataPath);
 
@@ -59,14 +61,17 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
             return null;
         }
 
-        protected void ReadData(BinaryReader reader, List<FileData> fileData)
+        protected void ReadData(BinaryReader reader, List<FileData> fileData, Queue<FileData> fileDataQueue, ref bool ReadFirstFile)
         {
             string BlockType = new String(reader.ReadChars(4));
             UInt64 blockSize = reader.ReadUInt64();
+
+            //File.AppendAllText("log.txt", string.Format("[Start Block {0} {1}]\r\n", BlockType, blockSize) + "{\r\n");
+
             switch (BlockType)
             {
                 case "File":
-                    ReadData(reader, fileData);
+                    ReadData(reader, fileData, fileDataQueue, ref ReadFirstFile);
                     break;
                 case "adlr":
                     {
@@ -79,14 +84,23 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
                         UInt64 offset = reader.ReadUInt64();
                         UInt64 size = reader.ReadUInt64();
                         UInt64 zsize = reader.ReadUInt64();
-                        FileData last = fileData.LastOrDefault();
-                        if (last != null && last.size == 0)
+                        //FileData last = fileData.LastOrDefault();
+                        //if (last != null && last.size == 0)
+                        //{
+                        //    last.zip = zip != 0;
+                        //    last.offset = offset;
+                        //    last.size = size;
+                        //    last.zsize = zsize;
+                        //}
+                        if (ReadFirstFile)
                         {
+                            FileData last = fileDataQueue.Dequeue();
                             last.zip = zip != 0;
                             last.offset = offset;
                             last.size = size;
                             last.zsize = zsize;
                         }
+                        ReadFirstFile = true;
                     }
                     break;
                 case "neko":
@@ -101,6 +115,7 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
                             reader.ReadBytes(2); // pull off 2 nuls?
                             //Console.WriteLine(name);
                             fileData.Add(new FileData() { Filename = name });
+                            fileDataQueue.Enqueue(fileData.Last());
                         }
                     }
                     break;
@@ -114,6 +129,8 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
                     reader.BaseStream.Seek((long)blockSize, SeekOrigin.Current);
                     break;
             }
+
+            //File.AppendAllText("log.txt", "}\r\n");
         }
 
         public Stream GetFileStream(bool zip, ulong offset, ulong size, ulong zsize)
