@@ -1,6 +1,6 @@
 [submodule "FunctionalNodeGraphWPF"]
 	path = FunctionalNodeGraphWPF
-	url = https://github.com/Nielk1/FunctionalNodeGraphWPF/
+	url = https://github.com/Nielk1/FunctionalNodeGraphWPF
 [submodule "EmoteEngineNet"]
 	path = EmoteEngineNet
 	url = https://github.com/Nielk1/EmoteEngineNet
