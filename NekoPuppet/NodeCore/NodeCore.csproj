@@ -51,12 +51,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataTypes\IComparableNodeData.cs" />
     <Compile Include="DataTypes\INodeDataBoolean.cs" />
     <Compile Include="DataTypes\NodeDataStruct.cs" />
     <Compile Include="DataTypes\NodeDataBoolean.cs" />
     <Compile Include="DataTypes\NodeDataXInputButtons.cs" />
+    <Compile Include="Nodes\Control\Changed.cs" />
     <Compile Include="Nodes\Control\ExpandStructData.cs" />
-    <Compile Include="Nodes\Control\Variable.cs" />
+    <Compile Include="Nodes\Control\Fork.cs" />
+    <Compile Include="Nodes\Control\ValueBuffer.cs" />
+    <Compile Include="Nodes\Variables\Variable.cs" />
     <Compile Include="Nodes\Debugging\Console.cs" />
     <Compile Include="DataTypes\NodeDataNumeric.cs" />
     <Compile Include="Nodes\Emote\SetVariable.cs" />
@@ -71,6 +75,7 @@
     <Compile Include="Nodes\DeadZone\ScaledRadial.cs" />
     <Compile Include="Nodes\Math\Sum.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WeakValueDictionary.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\FunctionalNodeGraphWPF\FunctionalNetworkModel\FunctionalNetworkModel.csproj">

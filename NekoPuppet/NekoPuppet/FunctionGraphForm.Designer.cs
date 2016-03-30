@@ -39,6 +39,8 @@
             this.saveSelectedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.duplicateNodesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -69,7 +71,9 @@
             this.appendToolStripMenuItem,
             this.toolStripSeparator1,
             this.saveToolStripMenuItem,
-            this.saveSelectedToolStripMenuItem});
+            this.saveSelectedToolStripMenuItem,
+            this.toolStripSeparator2,
+            this.duplicateNodesToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "&File";
@@ -77,33 +81,33 @@
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.openToolStripMenuItem.Text = "&Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // appendToolStripMenuItem
             // 
             this.appendToolStripMenuItem.Name = "appendToolStripMenuItem";
-            this.appendToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.appendToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.appendToolStripMenuItem.Text = "&Append";
             this.appendToolStripMenuItem.Click += new System.EventHandler(this.appendToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(142, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(158, 6);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.saveToolStripMenuItem.Text = "&Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.saveToolStripMenuItem_Click);
             // 
             // saveSelectedToolStripMenuItem
             // 
             this.saveSelectedToolStripMenuItem.Name = "saveSelectedToolStripMenuItem";
-            this.saveSelectedToolStripMenuItem.Size = new System.Drawing.Size(145, 22);
+            this.saveSelectedToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
             this.saveSelectedToolStripMenuItem.Text = "Sa&ve Selected";
             this.saveSelectedToolStripMenuItem.Click += new System.EventHandler(this.saveSelectedToolStripMenuItem_Click);
             // 
@@ -117,6 +121,18 @@
             // 
             this.saveFileDialog1.DefaultExt = "nodes";
             this.saveFileDialog1.Filter = "Control Nodes|*.nodes";
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(158, 6);
+            // 
+            // duplicateNodesToolStripMenuItem
+            // 
+            this.duplicateNodesToolStripMenuItem.Name = "duplicateNodesToolStripMenuItem";
+            this.duplicateNodesToolStripMenuItem.Size = new System.Drawing.Size(161, 22);
+            this.duplicateNodesToolStripMenuItem.Text = "&Duplicate Nodes";
+            this.duplicateNodesToolStripMenuItem.Click += new System.EventHandler(this.duplicateNodesToolStripMenuItem_Click);
             // 
             // FunctionGraphForm
             // 
@@ -149,5 +165,7 @@
         private System.Windows.Forms.ToolStripMenuItem saveSelectedToolStripMenuItem;
         private System.Windows.Forms.OpenFileDialog openFileDialog1;
         private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator2;
+        private System.Windows.Forms.ToolStripMenuItem duplicateNodesToolStripMenuItem;
     }
 }

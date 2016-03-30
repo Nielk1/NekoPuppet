@@ -147,5 +147,23 @@ namespace NekoPuppet.Plugins.Nodes.Core.Data
         {
             return new NodeDataNumeric();
         }
+
+        public object Clone()
+        {
+            switch (Track)
+            {
+                case TypeTrack.Empty:
+                    return NodeDataNumeric.MakeZero();
+                case TypeTrack.Byte:
+                    return NodeDataNumeric.FromByte(valByte);
+                case TypeTrack.Int16:
+                    return NodeDataNumeric.FromInt16(valInt16);
+                case TypeTrack.Double:
+                    return NodeDataNumeric.FromDouble(valDouble);
+                case TypeTrack.Single:
+                    return NodeDataNumeric.FromSingle(valSingle);
+            }
+            return null;
+        }
     }
 }

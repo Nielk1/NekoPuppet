@@ -51,6 +51,9 @@ namespace NekoPuppet.Plugins.Nodes.Core.Debug
             this.InputExecutionConnectors.Add(new ExecutionConnectorViewModel(executeIn[0]));
             inputText = new ConnectorViewModel("Text", typeof(INodeData), dataIn[0]);
             this.InputConnectors.Add(inputText);
+
+            // Set Name
+            Name = (string)data["name"];
         }
 
         public override JObject Serialize()

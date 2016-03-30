@@ -423,5 +423,138 @@ namespace NekoPuppet
                 this.Hide();
             }
         }
+
+        private void duplicateNodesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            string dmpCache = string.Empty;
+            {
+                List<FunctionalNetworkModel.NodeViewModel> nodes = this.nodeGraph1.ViewModel.Network.Nodes.Where(dr => dr.IsSelected).ToList();
+                List<FunctionalNetworkModel.ConnectionViewModel> connections = nodes.SelectMany(dr => dr.AttachedConnections).Distinct().Where(dr => nodes.Contains(dr.DestConnector.ParentNode)).ToList();
+                List<FunctionalNetworkModel.ExecutionConnectionViewModel> executionConnections = nodes.SelectMany(dr => dr.AttachedExecutionConnections).Distinct().Where(dr => nodes.Contains(dr.DestConnector.ParentNode)).ToList();
+
+                JObject SaveData = new JObject();
+                SaveData["nodes"] = JArray.FromObject(nodes
+                    .Select(dr =>
+                    {
+                        JObject tmp = new JObject();
+                        tmp["type"] = dr.Type;
+                        tmp["data"] = dr.Serialize();
+                        tmp["x"] = dr.X;
+                        tmp["y"] = dr.Y;
+                        tmp["ei"] = JArray.FromObject(dr.InputExecutionConnectors.Select(dx => dx.Guid));
+                        tmp["eo"] = JArray.FromObject(dr.OutputExecutionConnectors.Select(dx => dx.Guid));
+                        tmp["di"] = JArray.FromObject(dr.InputConnectors.Select(dx => dx.Guid));
+                        tmp["do"] = JArray.FromObject(dr.OutputConnectors.Select(dx => dx.Guid));
+                        return tmp;
+                    })
+                    .ToList());
+                SaveData["dcons"] = JArray.FromObject(connections
+                    .Select(dr =>
+                    {
+                        JObject tmp = new JObject();
+                        tmp["s"] = dr.SourceConnector.Guid;
+                        tmp["d"] = dr.DestConnector.Guid;
+                        return tmp;
+                    })
+                    .Where(dr => dr != null)
+                    .ToList());
+                SaveData["econs"] = JArray.FromObject(executionConnections
+                    .Select(dr =>
+                    {
+                        JObject tmp = new JObject();
+                        tmp["s"] = dr.SourceConnector.Guid;
+                        tmp["d"] = dr.DestConnector.Guid;
+                        return tmp;
+                    })
+                    .Where(dr => dr != null)
+                    .ToList());
+
+                dmpCache = SaveData.ToString();
+            }
+            {
+                JObject obj = JObject.Parse(dmpCache);
+
+                if (obj["nodes"] != null && obj["nodes"].Type == JTokenType.Array)
+                {
+                    List<NodeViewModel> nodeList = new List<NodeViewModel>();
+
+                    JArray arr = (JArray)obj["nodes"];
+                    arr.ToList().ForEach(dr =>
+                    {
+                        if (dr["type"] != null && dr["type"].Type == JTokenType.String)
+                        {
+                            string type = (string)dr["type"];
+                            if (TypeToFactory.ContainsKey(type))
+                            {
+                                Guid[] _ei = dr["ei"] != null && dr["ei"].Type == JTokenType.Array ? ((JArray)dr["ei"]).Select(dx => new Guid((string)dx)).ToArray() : new Guid[0];
+                                Guid[] _eo = dr["eo"] != null && dr["eo"].Type == JTokenType.Array ? ((JArray)dr["eo"]).Select(dx => new Guid((string)dx)).ToArray() : new Guid[0];
+                                Guid[] _di = dr["di"] != null && dr["di"].Type == JTokenType.Array ? ((JArray)dr["di"]).Select(dx => new Guid((string)dx)).ToArray() : new Guid[0];
+                                Guid[] _do = dr["do"] != null && dr["do"].Type == JTokenType.Array ? ((JArray)dr["do"]).Select(dx => new Guid((string)dx)).ToArray() : new Guid[0];
+
+                                NodeViewModel model = TypeToFactory[type].CreateNode((JObject)dr["data"], _ei, _eo, _di, _do);
+                                if (model != null)
+                                {
+                                    nodeList.Add(model);
+
+                                    model.X = dr["x"] != null && dr["x"].Type == JTokenType.Float ? (float)dr["x"] : 0f;
+                                    model.Y = dr["y"] != null && dr["y"].Type == JTokenType.Float ? (float)dr["y"] : 0f;
+                                    NodeViewModel created = nodeGraph1.ViewModel.CreateNode(model, /*position,*/ false);
+                                }
+                            }
+                        }
+                    });
+
+                    if (obj["dcons"] != null && obj["dcons"].Type == JTokenType.Array)
+                    {
+                        ((JArray)obj["dcons"]).ToList().ForEach(dr =>
+                        {
+                            if (dr != null && dr.Type == JTokenType.Object)
+                            {
+                                Guid conSource = new Guid((string)(((JObject)dr)["s"]));
+                                Guid conDest = new Guid((string)(((JObject)dr)["d"]));
+
+                                ConnectorViewModel conSource2 = nodeList.SelectMany(dx => dx.OutputConnectors).Where(dx => dx.Guid == conSource).FirstOrDefault();
+                                ConnectorViewModel conDest2 = nodeList.SelectMany(dx => dx.InputConnectors).Where(dx => dx.Guid == conDest).FirstOrDefault();
+
+                                if (conSource2 != null && conDest2 != null)
+                                {
+                                    nodeGraph1.ViewModel.Network.Connections.Add(new ConnectionViewModel()
+                                    {
+                                        DestConnector = conDest2,
+                                        SourceConnector = conSource2
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    if (obj["econs"] != null && obj["econs"].Type == JTokenType.Array)
+                    {
+                        ((JArray)obj["econs"]).ToList().ForEach(dr =>
+                        {
+                            if (dr != null && dr.Type == JTokenType.Object)
+                            {
+                                Guid conSource = new Guid((string)(((JObject)dr)["s"]));
+                                Guid conDest = new Guid((string)(((JObject)dr)["d"]));
+
+                                ExecutionConnectorViewModel conSource2 = nodeList.SelectMany(dx => dx.OutputExecutionConnectors).Where(dx => dx.Guid == conSource).FirstOrDefault();
+                                ExecutionConnectorViewModel conDest2 = nodeList.SelectMany(dx => dx.InputExecutionConnectors).Where(dx => dx.Guid == conDest).FirstOrDefault();
+
+                                if (conSource2 != null && conDest2 != null)
+                                {
+                                    nodeGraph1.ViewModel.Network.ExecutionConnections.Add(new ExecutionConnectionViewModel()
+                                    {
+                                        DestConnector = conDest2,
+                                        SourceConnector = conSource2
+                                    });
+                                }
+                            }
+                        });
+                    }
+
+                    nodeList.ForEach(dr => dr.Start());
+                }
+            }
+        }
     }
 }

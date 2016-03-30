@@ -10,33 +10,33 @@ using System.Windows.Forms;
 
 namespace NekoPuppet.Plugins.Nodes.Core.Control
 {
-    class VariableNodeFactory : IControlNodeFactoryPlugin
+    class ValueBufferNodeFactory : IControlNodeFactoryPlugin
     {
-        public const string TYPESTRING = "Control.Variable"; // Type for note display and save/load
+        public const string TYPESTRING = "Control.ValueBuffer"; // Type for note display and save/load
         public const string NODEMENU = "Control"; // Menu, / delimited
-        public const string NAME = "Variable"; // Name in menu
+        public const string NAME = "ValueBuffer"; // Name in menu
 
         public string TypeString { get { return TYPESTRING; } }
         public string NodeMenu { get { return NODEMENU; } }
         public string Name { get { return NAME; } }
 
-        public VariableNodeFactory()
+        public ValueBufferNodeFactory()
         {
 
         }
 
         public NodeViewModel CreateNode()
         {
-            return new VariableNode();
+            return new ValueBufferNode();
         }
 
         public NodeViewModel CreateNode(JObject data, Guid[] executeIn, Guid[] executeOut, Guid[] dataIn, Guid[] dataOut)
         {
-            return new VariableNode(data, executeIn, executeOut, dataIn, dataOut);
+            return new ValueBufferNode(data, executeIn, executeOut, dataIn, dataOut);
         }
     }
 
-    class VariableNode : NodeViewModel
+    class ValueBufferNode : NodeViewModel
     {
         class NodeData : PropertyDialogCollection
         {
@@ -51,13 +51,13 @@ namespace NekoPuppet.Plugins.Nodes.Core.Control
         ConnectorViewModel conIn;
         ConnectorViewModel conOut;
 
-        public override string Type { get { return VariableNodeFactory.TYPESTRING; } }
+        public override string Type { get { return ValueBufferNodeFactory.TYPESTRING; } }
 
         private INodeData Value;
 
         public override string Note { get { return string.Format("Value: {0}", Value); } }
 
-        public VariableNode() : base(VariableNodeFactory.TYPESTRING)
+        public ValueBufferNode() : base(ValueBufferNodeFactory.TYPESTRING)
         {
             // Prepare Connections
             conExecute = new ExecutionConnectorViewModel();
@@ -75,11 +75,15 @@ namespace NekoPuppet.Plugins.Nodes.Core.Control
             dlgEdit = new PropertyDialog();
         }
 
-        public VariableNode(JObject data, Guid[] executeIn, Guid[] executeOut, Guid[] dataIn, Guid[] dataOut) : base(VariableNodeFactory.TYPESTRING)
+        public ValueBufferNode(JObject data, Guid[] executeIn, Guid[] executeOut, Guid[] dataIn, Guid[] dataOut) : base(ValueBufferNodeFactory.TYPESTRING)
         {
             // Prepare Connections
-            conOut = new ConnectorViewModel("Value", typeof(NodeDataNumeric), dataOut[0]);
+            conExecute = new ExecutionConnectorViewModel(executeIn[0]);
+            conIn = new ConnectorViewModel("Set", typeof(INodeData), dataIn[0]);
+            conOut = new ConnectorViewModel("Value", typeof(INodeData), dataOut[0]);
 
+            this.InputExecutionConnectors.Add(conExecute);
+            this.InputConnectors.Add(conIn);
             this.OutputConnectors.Add(conOut);
 
             // Set Name
