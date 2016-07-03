@@ -103,6 +103,7 @@ namespace NekoPuppet
                 Path = @"neko0\emotedriver.dll",
                 Key = "742877301",
                 Ver = InterfaceVersion.NEKO0,
+                ColorMode = ColorType.BGRA,
             };
             emoteLibs.Add(meta);
             //emoteLibs.Add(new EmoteModuleMetadata()
@@ -550,7 +551,7 @@ namespace NekoPuppet
                 }
 
 
-                EmotePlayer player = emote.CreatePlayer(item.Name, TransCryptCharacter(item.GetDataStream(), item.Key, emoteLibs.First().Key));
+                EmotePlayer player = emote.CreatePlayer(item.Name, ColorModeCharacter(TransCryptCharacter(item.GetDataStream(), item.Key, emoteLibs.First().Key), item.ColorMode, emoteLibs.First().ColorMode));
 
                 player.SetScale(0.4f, 0, 0);
                 player.SetCoord(0, 50, 0, 0);
@@ -584,6 +585,181 @@ namespace NekoPuppet
                 return stream;
 
             return CharacterCrypto(CharacterCrypto(stream, keyIn), keyOut);
+        }
+
+        private Stream ColorModeCharacter(Stream stream, ColorType keyIn, ColorType keyOut)
+        {
+            if (keyIn == keyOut)
+                return stream;
+
+            {
+                byte[] retData = new byte[stream.Length];
+
+                using (MemoryStream fsOut = new MemoryStream(retData))
+                using (BinaryWriter writer = new BinaryWriter(fsOut))
+                {
+                    using (BinaryReader reader = new BinaryReader(stream))
+                    {
+                        UInt32 FileMarker = reader.ReadUInt32(); // PSB\0
+                        writer.Write(FileMarker);
+                        //Console.WriteLine($"FileMarker: {FileMarker}");
+
+                        UInt32 UnkVer = reader.ReadUInt32(); // Perhapse version?
+                        writer.Write(UnkVer);
+                        //Console.WriteLine($"UnkVer: {UnkVer}");
+
+                        UInt32 DataOff1 = reader.ReadUInt32(); // data offset
+                        writer.Write(DataOff1);
+                        //Console.WriteLine($"DataOff1: {DataOff1}");
+
+                        UInt32 DataOff2 = reader.ReadUInt32(); // data offset agaim
+                        writer.Write(DataOff2);
+                        //Console.WriteLine($"DataOff2: {DataOff2}");
+
+                        UInt32 Unknown1 = reader.ReadUInt32(); // unknown
+                        writer.Write(Unknown1);
+                        //Console.WriteLine($"Unknown1: {Unknown1}");
+
+                        UInt32 Unknown2 = reader.ReadUInt32(); // unknown
+                        writer.Write(Unknown2);
+                        //Console.WriteLine($"Unknown2: {Unknown2}");
+
+                        UInt32 ResOffTable = reader.ReadUInt32();
+                        writer.Write(ResOffTable);
+                        //Console.WriteLine($"ResOffTable: {ResOffTable}");
+
+                        UInt32 UnkOff4 = reader.ReadUInt32(); // Unknown Offset 4
+                        writer.Write(UnkOff4);
+                        //Console.WriteLine($"UnkOff4: {UnkOff4}");
+
+                        UInt32 ImageOffset = reader.ReadUInt32(); // ImageDataOffset
+                        writer.Write(ImageOffset);
+                        //Console.WriteLine($"ImageOffset: {ImageOffset}");
+
+                        UInt32 Unknown5 = reader.ReadUInt32(); // Unknown
+                        writer.Write(Unknown5);
+                        //Console.WriteLine($"Unknown5: {Unknown5}");
+
+                        //Console.WriteLine("-----------------");
+
+                        // skip part that's normally encrpyted
+                        while (reader.BaseStream.Position < ResOffTable)
+                        {
+                            writer.Write(reader.ReadByte());
+                        }
+
+                        // skip some more stuff
+                        while (reader.BaseStream.Position < UnkOff4)
+                        {
+                            writer.Write(reader.ReadByte());
+                        }
+
+                        byte _0D = reader.ReadByte();
+                        writer.Write(_0D);
+
+                        byte _unkByte = reader.ReadByte();
+                        writer.Write(_unkByte);
+
+                        UInt16 colorMode = reader.ReadUInt16();
+                        writer.Write(colorMode);
+
+                        // skip some more stuff
+                        while (reader.BaseStream.Position < ImageOffset)
+                        {
+                            byte tmp = reader.ReadByte();
+                            //Console.Write("{0:X2}", tmp);
+                            writer.Write(tmp);
+                        }
+                        //Console.WriteLine();
+
+                        // copy the rest of the file
+                        //int len = (int)(reader.BaseStream.Length - reader.BaseStream.Position);
+                        //writer.Write(reader.ReadBytes(len), 0, len);
+                        while (reader.BaseStream.Position < reader.BaseStream.Length)
+                        {
+                            byte r = 0;
+                            byte g = 0;
+                            byte b = 0;
+                            byte a = 0;
+
+                            if (colorMode == 0x0F) // 16 bit
+                            {
+                                byte[] rawCols = reader.ReadBytes(2);
+
+                                switch (keyIn)
+                                {
+                                    case ColorType.BGRA:
+                                        b = (byte)((rawCols[1] & 0xf0) >> 4);
+                                        g = (byte)(rawCols[1] & 0x0f);
+                                        r = (byte)((rawCols[0] & 0xf0) >> 4);
+                                        a = (byte)(rawCols[0] & 0x0f);
+                                        break;
+                                    case ColorType.RGBA:
+                                        r = (byte)((rawCols[1] & 0xf0) >> 4);
+                                        g = (byte)(rawCols[1] & 0x0f);
+                                        b = (byte)((rawCols[0] & 0xf0) >> 4);
+                                        a = (byte)(rawCols[0] & 0x0f);
+                                        break;
+                                }
+
+                                switch (keyOut)
+                                {
+                                    case ColorType.BGRA:
+                                        writer.Write((byte)(b | (g << 4)));
+                                        writer.Write((byte)(r | (a << 4)));
+                                        break;
+                                    case ColorType.RGBA:
+                                        writer.Write((byte)(r | (g << 4)));
+                                        writer.Write((byte)(b | (a << 4)));
+                                        break;
+                                }
+                            }
+                            else if (colorMode == 0x10) // 32 bit
+                            {
+                                byte[] rawCols = reader.ReadBytes(4);
+
+                                switch (keyIn)
+                                {
+                                    case ColorType.BGRA:
+                                        b = rawCols[0];
+                                        g = rawCols[1];
+                                        r = rawCols[2];
+                                        a = rawCols[3];
+                                        break;
+                                    case ColorType.RGBA:
+                                        r = rawCols[0];
+                                        g = rawCols[1];
+                                        b = rawCols[2];
+                                        a = rawCols[3];
+                                        break;
+                                }
+
+                                switch (keyOut)
+                                {
+                                    case ColorType.BGRA:
+                                        writer.Write(b);
+                                        writer.Write(g);
+                                        writer.Write(r);
+                                        writer.Write(a);
+                                        break;
+                                    case ColorType.RGBA:
+                                        writer.Write(r);
+                                        writer.Write(g);
+                                        writer.Write(b);
+                                        writer.Write(a);
+                                        break;
+                                }
+                            }
+                            else
+                            {
+                                throw new NotImplementedException($"Unknown Color Mode 0x{colorMode:X4}");
+                            }
+                        }
+                    }
+
+                    return new MemoryStream(retData);
+                }
+            }
         }
 
         // thanks to marcussacana for his cleanup of this function

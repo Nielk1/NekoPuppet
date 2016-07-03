@@ -8,5 +8,6 @@ namespace NekoPuppet
         public string Path { get; set; }
         public string Text { get; set; }
         public InterfaceVersion Ver { get; set; }
+        public ColorType ColorMode { get; set; }
     }
 }

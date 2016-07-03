@@ -1,4 +1,5 @@
-﻿using LoaderPluginNekopara;
+﻿using EmoteEngineNet;
+using LoaderPluginNekopara;
 using NekoPuppet.Plugins;
 using System;
 using System.Collections.Generic;
@@ -73,6 +74,8 @@ namespace NekoPuppet.Plugins.Loaders.Nekopara
 
         public string UniqueStringID { get { return "NekoVol1-" + filename; } }
         public string Key { get { return "742877301"; } }
+        public ColorType ColorMode { get { return ColorType.BGRA; } }
+
         public Image LargeIcon { get { return new Bitmap(256, 256); } }
         public Image SmallIcon { get { return nekoIcon; } }
 

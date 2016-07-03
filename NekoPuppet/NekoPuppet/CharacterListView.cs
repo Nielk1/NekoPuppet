@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EmoteEngineNet;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
@@ -235,6 +236,7 @@ namespace NekoPuppet
         string Name { get; }
         string Origin { get; }
         string Key { get; }
+        ColorType ColorMode { get; }
         Image LargeIcon { get; }
         Image SmallIcon { get; }
         ListViewItem ListViewItemCache { get; set; }

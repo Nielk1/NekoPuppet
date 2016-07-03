@@ -1,18 +1,19 @@
 ﻿using EmoteEngineNet;
-using IonicCustomMod.Zip;
-using LoaderMontDaughterRem;
+using Ionic.Zip;
+using LoaderUptownBoys;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows.Forms;
 
-namespace NekoPuppet.Plugins.Loaders.MontDaughterRem
+namespace NekoPuppet.Plugins.Loaders.LoaderUptownBoys
 {
-    public class MontDaughterRemCharacterSource : ICharacterLoader
+    public class UptownBoysCharacterSource : ICharacterLoader
     {
-        string montDaughterRemDataPath = Path.Combine(Directory.GetCurrentDirectory(), @"assets", @"jp.furyu.moefan", @"files", @"DAT", @"Resources");
+        string uptownBoysDataPath = Path.Combine(Directory.GetCurrentDirectory(), @"assets", @"jp.co.eitarosoft.yd", @"files", @"fc", @"resources");
 
         public class FileData
         {
@@ -27,8 +28,8 @@ namespace NekoPuppet.Plugins.Loaders.MontDaughterRem
         {
             try
             {
-                List<string> characters = Directory.GetFiles(montDaughterRemDataPath, "emote_cmp.bytes", SearchOption.AllDirectories).AsEnumerable().ToList(); ;
-                return characters.Select(dr => (ICharacterListViewItem)new MontDaughterRemCharacterData(dr, dr.Remove(0, montDaughterRemDataPath.Length + 1), this)).ToList();
+                List<string> characters = Directory.GetFiles(uptownBoysDataPath, "*.psb", SearchOption.AllDirectories).AsEnumerable().ToList();
+                return characters.Select(dr => (ICharacterListViewItem)new UptownBoysCharacterData(dr, dr.Remove(0, uptownBoysDataPath.Length + 1), this)).ToList();
             }
             catch (DirectoryNotFoundException)
             {
@@ -50,7 +51,7 @@ namespace NekoPuppet.Plugins.Loaders.MontDaughterRem
                         data = new byte[file.UncompressedSize];
                         using (MemoryStream fstream = new MemoryStream(data))
                         {
-                            file.ExtractWithPassword(fstream, 0x7393d246, 0x829dc765, 0x19176ecc);
+                            file.Extract(fstream);
                         }
                         return new MemoryStream(data);
                     }
@@ -60,13 +61,13 @@ namespace NekoPuppet.Plugins.Loaders.MontDaughterRem
         }
     }
 
-    public class MontDaughterRemCharacterData : ICharacterListViewItem
+    public class UptownBoysCharacterData : ICharacterListViewItem
     {
-        MontDaughterRemCharacterSource intr;
+        UptownBoysCharacterSource intr;
 
-        private static Image montIcon = Resource.thumb_small_mont_daughter_rem;
+        private static Image boysIcon = Resource.thumb_small_uptown_boys;
 
-        public MontDaughterRemCharacterData(string filename, string shortpath, MontDaughterRemCharacterSource intr)
+        public UptownBoysCharacterData(string filename, string shortpath, UptownBoysCharacterSource intr)
         {
             this.filename = filename;
             this.shortpath = shortpath;
@@ -80,15 +81,15 @@ namespace NekoPuppet.Plugins.Loaders.MontDaughterRem
         {
             get
             {
-                return "MontDaughterRem-" + shortpath;
+                return "UptownBoys-" + shortpath;
             }
         }
 
-        public string Key { get { return "180425132"; } }
-        public ColorType ColorMode { get { return ColorType.BGRA; } }
+        public string Key { get { return "601512504"; } }
+        public ColorType ColorMode { get { return ColorType.RGBA; } }
 
         public Image LargeIcon { get { return new Bitmap(256, 256); } }
-        public Image SmallIcon { get { return montIcon; } }
+        public Image SmallIcon { get { return boysIcon; } }
 
         public ListViewItem ListViewItemCache { get; set; }
 
@@ -96,11 +97,11 @@ namespace NekoPuppet.Plugins.Loaders.MontDaughterRem
         {
             get
             {
-                return shortpath != null ? Path.GetDirectoryName(shortpath) : null;
+                return (shortpath != null ? Path.GetDirectoryName(shortpath) : null) + "/" + (filename != null ? Path.GetFileNameWithoutExtension(filename) : null);
             }
         }
 
-        public string Origin { get { return "Mont daughter - Rem"; } }
+        public string Origin { get { return "Uptown Boys"; } }
 
         public Stream GetDataStream()
         {

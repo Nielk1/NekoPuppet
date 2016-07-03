@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EmoteEngineNet;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -65,7 +66,7 @@ namespace NekoPuppet.Plugins.Loaders.LoaderTest
 
         //public string Key { get { return "192918854"; } }
         public string Key { get { return "000000000"; } }
-
+        public ColorType ColorMode { get { return ColorType.BGRA; } }
 
         public Image LargeIcon { get { return new Bitmap(256, 256); } }
         public Image SmallIcon { get { return testIcon; } }
