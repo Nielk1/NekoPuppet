@@ -35,7 +35,7 @@ To utilize these files copy emotewin.xp3 to {NekoPuppetDir}\assets\NekoparaVol0
 
 To utilize these files copy emotewin.xp3 to {NekoPuppetDir}\assets\NekoparaVol1
 
-### NEKOPARA Vol.2 (untested)
+### NEKOPARA Vol.2
 
 To utilize these files copy emotewin.xp3 to {NekoPuppetDir}\assets\NekoparaVol2
 
