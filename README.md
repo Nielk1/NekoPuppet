@@ -20,6 +20,12 @@ https://github.com/Nielk1/DotNetZip.ZipReducedKeyDecrypt
 
 Modified version of DotNetZip's PKZip decompression library for the purpose of using encryption keys rather than the password that generates them.  This is used for the "Mont daughter - Rem" character loader to read game assets directly.
 
+## Required Additional Source
+
+### SharpDX
+
+The version in Nuget is not sufficent.  Please download directly from their website: http://sharpdx.org/
+
 ## Library Loading
 
 Currently this program is hard-coded to use NEKOPARA Vol.0's emotedriver.dll, though other drivers will be supported in the future.
