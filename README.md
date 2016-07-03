@@ -44,3 +44,9 @@ To utilize these files copy emotewin.xp3 to {NekoPuppetDir}\assets\NekoparaVol2
 To access these files, you must first extract them from the game on Android after downloading the assets through play.
 Copy files from \data\data\jp.furyu.moefan\ on an android device to {NekoPuppetDir}\assets\jp.furyu.moefan\, you may need to root your Android device to access these files.
 The specific paths needed are \jp.furyu.moefan\files\DAT\Resources\Monster and \jp.furyu.moefan\files\DAT\Resources\NPC
+
+### Uptown Boys
+
+To access these files, you must first extract them from the game on Android after downloading the assets through play.
+Copy files from \data\data\jp.co.eitarosoft.yd\ on an android device to {NekoPuppetDir}\assets\jp.co.eitarosoft.yd\, you may need to root your Android device to access these files.
+The specific path needed is \jp.co.eitarosoft.yd\files\fc\resources\480x854
