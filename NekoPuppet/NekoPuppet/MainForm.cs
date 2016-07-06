@@ -147,7 +147,7 @@ namespace NekoPuppet
             renderForm.StartPosition = FormStartPosition.Manual;
             renderForm.Location = new Point(this.Location.X + this.Width, this.Location.Y);
             renderForm.Show();
-            emote = new Emote(renderForm.Handle, 512, 512, false);
+            emote = new Emote(renderForm.Handle, 1024, 1024, false);
 
 
 
@@ -408,7 +408,8 @@ namespace NekoPuppet
 
                 //_device.Clear(ClearFlags.Target, Color.Transparent, 1.0f, 0);
                 //_device.Clear(ClearFlags.Target, new SharpDX.Mathematics.Interop.RawColorBGRA(0, 0, 0, 0), 1.0f, 0);
-                _device.Clear(ClearFlags.Target, new SharpDX.Mathematics.Interop.RawColorBGRA(0, 255, 0, 255), 1.0f, 0);
+                //_device.Clear(ClearFlags.Target, new SharpDX.Mathematics.Interop.RawColorBGRA(0, 255, 0, 255), 1.0f, 0);
+                _device.Clear(ClearFlags.Target, new SharpDX.Mathematics.Interop.RawColorBGRA(0, 0, 0, 255), 1.0f, 0);
 
                 _device.BeginScene();
                 //device.UpdateSurface(device.GetBackBuffer(0,0),new Surface(new IntPtr(e.D3DSurface)));
@@ -551,7 +552,7 @@ namespace NekoPuppet
                 }
 
 
-                EmotePlayer player = emote.CreatePlayer(item.Name, ColorModeCharacter(TransCryptCharacter(item.GetDataStream(), item.Key, emoteLibs.First().Key), item.ColorMode, emoteLibs.First().ColorMode));
+                EmotePlayer player = emote.CreatePlayer(item.Name, TransCryptCharacter(item.GetDataStream(), item.Key, emoteLibs.First().Key, item.ColorMode, emoteLibs.First().ColorMode));
 
                 player.SetScale(0.4f, 0, 0);
                 player.SetCoord(0, 50, 0, 0);
@@ -579,12 +580,30 @@ namespace NekoPuppet
             LoadEmotePlayer();
         }
 
-        private Stream TransCryptCharacter(Stream stream, string keyIn, string keyOut)
+        private Stream TransCryptCharacter(Stream stream, string encKeyIn, string encKeyOut, ColorType colorKeyIn, ColorType colorKeyOut)
         {
-            if (keyIn == keyOut)
-                return stream;
-
-            return CharacterCrypto(CharacterCrypto(stream, keyIn), keyOut);
+            if (encKeyIn == encKeyOut)
+            {
+                if (colorKeyIn == colorKeyOut)
+                {
+                    return stream;
+                }
+                else
+                {
+                    return ColorModeCharacter(stream, colorKeyIn, colorKeyOut);
+                }
+            }
+            else
+            {
+                if (colorKeyIn == colorKeyOut)
+                {
+                    return CharacterCrypto(CharacterCrypto(stream, encKeyIn, true), encKeyOut, false);
+                }
+                else
+                {
+                    return CharacterCrypto(ColorModeCharacter(CharacterCrypto(stream, encKeyIn, true), colorKeyIn, colorKeyOut), encKeyOut, false);
+                }
+            }
         }
 
         private Stream ColorModeCharacter(Stream stream, ColorType keyIn, ColorType keyOut)
@@ -764,7 +783,7 @@ namespace NekoPuppet
 
         // thanks to marcussacana for his cleanup of this function
         // http://pastebin.com/basgJUgG
-        private Stream CharacterCrypto(Stream stream, string passKey)
+        private Stream CharacterCrypto(Stream stream, string passKey, bool isDecryptPass)
         {
             UInt32 MainKey = 0;
             byte unkIter = 0x0A; // might be string length?  Investigate
@@ -778,8 +797,8 @@ namespace NekoPuppet
             UInt32 Key2 = 0x1F123BB5;
             UInt32 XorKey = 0x00000000;
 
-            UInt32 RstKey;
-            UInt32 TmpXor;
+            UInt32 RstKey = 0;
+            UInt32 TmpXor = 0;
 
             byte[] retData = new byte[stream.Length];
 
@@ -791,32 +810,93 @@ namespace NekoPuppet
                     UInt32 FileMarker = reader.ReadUInt32(); // PSB\0
                     writer.Write(FileMarker);
 
-                    UInt32 UnkVer = reader.ReadUInt32(); // Perhapse version?
+                    UInt16 UnkVer = reader.ReadUInt16(); // Perhapse version?
                     writer.Write(UnkVer);
+                    UInt16 UnkHEnc = 0;
+                    if (isDecryptPass)
+                    {
+                        UnkHEnc = reader.ReadUInt16(); // Perhapse headerEncryption?
+                    }
+                    else
+                    {
+                        UnkHEnc = reader.ReadUInt16(); // Perhapse headerEncryption?
+                        UnkHEnc = 0;
+                    }
+                    writer.Write(UnkHEnc);
 
-                    UInt32 DataOff1 = reader.ReadUInt32(); // data offset
-                    writer.Write(DataOff1);
+                    //Console.WriteLine(UnkVer + "\t" + UnkHEnc);
 
-                    UInt32 DataOff2 = reader.ReadUInt32(); // data offset agaim
-                    writer.Write(DataOff2);
 
-                    UInt32 Unknown1 = reader.ReadUInt32(); // unknown
-                    writer.Write(Unknown1);
+                    UInt32 DataOff1;
+                    UInt32 DataOff2;
+                    UInt32 Unknown1;
+                    UInt32 Unknown2;
+                    UInt32 ResOffTable = 0;
+                    UInt32 UnkOff4;
+                    UInt32 ImageOffset;
+                    UInt32 Unknown5;
+                    UInt32? Unknown6;
 
-                    UInt32 Unknown2 = reader.ReadUInt32(); // unknown
-                    writer.Write(Unknown2);
+                    // I don't know if the micro header encryption is caused by the UnkVer or the UnkHEnc byte pairs, so making a guess here
+                    {
+                        byte[] buffer = reader.ReadBytes(4);
+                        if(!isDecryptPass) DataOff1 = BitConverter.ToUInt32(buffer, 0); // data offset
+                        ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                        if (isDecryptPass) DataOff1 = BitConverter.ToUInt32(buffer, 0); // data offset
+                        writer.Write(buffer);
 
-                    UInt32 ResOffTable = reader.ReadUInt32();
-                    writer.Write(ResOffTable);
+                        buffer = reader.ReadBytes(4);
+                        if (!isDecryptPass) DataOff2 = BitConverter.ToUInt32(buffer, 0); // data offset agaim
+                        ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                        if (isDecryptPass) DataOff2 = BitConverter.ToUInt32(buffer, 0); // data offset agaim
+                        writer.Write(buffer);
 
-                    UInt32 UnkOff4 = reader.ReadUInt32(); // Unknown Offset 4
-                    writer.Write(UnkOff4);
+                        buffer = reader.ReadBytes(4);
+                        if (!isDecryptPass) Unknown1 = BitConverter.ToUInt32(buffer, 0); // unknown
+                        ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                        if (isDecryptPass) Unknown1 = BitConverter.ToUInt32(buffer, 0); // unknown
+                        writer.Write(buffer);
 
-                    UInt32 ImageOffset = reader.ReadUInt32(); // ImageDataOffset
-                    writer.Write(ImageOffset);
+                        buffer = reader.ReadBytes(4);
+                        if (!isDecryptPass) Unknown2 = BitConverter.ToUInt32(buffer, 0); // unknown
+                        ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                        if (isDecryptPass) Unknown2 = BitConverter.ToUInt32(buffer, 0); // unknown
+                        writer.Write(buffer);
 
-                    UInt32 Unknown5 = reader.ReadUInt32(); // Unknown
-                    writer.Write(Unknown5);
+                        buffer = reader.ReadBytes(4);
+                        if (!isDecryptPass) ResOffTable = BitConverter.ToUInt32(buffer, 0);
+                        ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                        if (isDecryptPass) ResOffTable = BitConverter.ToUInt32(buffer, 0);
+                        writer.Write(buffer);
+
+                        buffer = reader.ReadBytes(4);
+                        if (!isDecryptPass) UnkOff4 = BitConverter.ToUInt32(buffer, 0); // Unknown Offset 4
+                        ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                        if (isDecryptPass) UnkOff4 = BitConverter.ToUInt32(buffer, 0); // Unknown Offset 4
+                        writer.Write(buffer);
+
+                        buffer = reader.ReadBytes(4);
+                        if (!isDecryptPass) ImageOffset = BitConverter.ToUInt32(buffer, 0); // ImageDataOffset
+                        ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                        if (isDecryptPass) ImageOffset = BitConverter.ToUInt32(buffer, 0); // ImageDataOffset
+                        writer.Write(buffer);
+
+                        buffer = reader.ReadBytes(4);
+                        if (!isDecryptPass) Unknown5 = BitConverter.ToUInt32(buffer, 0); // Unknown
+                        ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                        if (isDecryptPass) Unknown5 = BitConverter.ToUInt32(buffer, 0); // Unknown
+                        writer.Write(buffer);
+
+                        if (UnkVer == 3)
+                        {
+                            buffer = reader.ReadBytes(4);
+                            if (!isDecryptPass) Unknown6 = BitConverter.ToUInt32(buffer, 0); // Unknown
+                            ReadEncryptedByte(UnkHEnc != 0, buffer, ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey);
+                            if (isDecryptPass) Unknown6 = BitConverter.ToUInt32(buffer, 0); // Unknown
+                            writer.Write(buffer);
+                        }
+                    }
+
 
                     if (MainKey == 0)
                     {
@@ -830,21 +910,15 @@ namespace NekoPuppet
                         //decrypt and copy file data
                         while (reader.BaseStream.Position < ResOffTable)
                         {
-                            if (XorKey == 0)
+                            if (UnkHEnc == 0)
                             {
-                                TmpXor = (Key1 << 11) ^ Key1;
-                                Key1 = NextKey;
-                                NextKey = Key2;
-                                RstKey = ((MainKey >> 11) ^ TmpXor) >> 8;
-                                RstKey = (RstKey ^ TmpXor) ^ MainKey;
-                                Key2 = MainKey;
-                                MainKey = RstKey;
-                                XorKey = RstKey;
+                                //writer.Write(Data);
+                                writer.Write(ReadEncryptedByte(UnkHEnc == 0, reader.ReadBytes(1), ref XorKey, ref TmpXor, ref Key1, ref NextKey, ref RstKey, ref Key2, ref MainKey));
                             }
-                            byte Data = reader.ReadByte();
-                            Data ^= (byte)XorKey; // truncate, get lowest byte
-                            writer.Write(Data);
-                            XorKey >>= 8;
+                            else
+                            {
+                                writer.Write(reader.ReadByte());
+                            }
                         }
                     }
 
@@ -855,6 +929,34 @@ namespace NekoPuppet
 
                 return new MemoryStream(retData);
             }
+        }
+
+        // this will return a cryptoed array
+        // it might also alter the input array, need to check that, would be fine if it did
+        private byte[] ReadEncryptedByte(bool doDecrypt, byte[] input, ref uint XorKey, ref uint TmpXor, ref uint Key1, ref uint NextKey, ref uint RstKey, ref uint Key2, ref uint MainKey)
+        {
+            if (!doDecrypt)
+                return input;// return reader.ReadByte();
+
+            for (int i = 0; i < input.Length; i++)
+            {
+                if (XorKey == 0)
+                {
+                    TmpXor = (Key1 << 11) ^ Key1;
+                    Key1 = NextKey;
+                    NextKey = Key2;
+                    RstKey = ((MainKey >> 11) ^ TmpXor) >> 8;
+                    RstKey = (RstKey ^ TmpXor) ^ MainKey;
+                    Key2 = MainKey;
+                    MainKey = RstKey;
+                    XorKey = RstKey;
+                }
+                byte Data = input[i];// byte Data = reader.ReadByte();
+                Data ^= (byte)XorKey; // truncate, get lowest byte
+                input[i] = Data;//writer.Write(Data);
+                XorKey >>= 8;
+            }
+            return input;
         }
 
         private void listView1_KeyDown(object sender, KeyEventArgs e)

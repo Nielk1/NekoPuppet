@@ -45,6 +45,10 @@ To utilize these files copy emotewin.xp3 to {NekoPuppetDir}\assets\NekoparaVol1
 
 To utilize these files copy emotewin.xp3 to {NekoPuppetDir}\assets\NekoparaVol2
 
+### Go! Go! Nippon! ~My First Trip to Japan~
+
+To utilize these files copy resources.assets to {NekoPuppetDir}\assets\GoGoNippon
+
 ### Mont daughter - Rem
 
 To access these files, you must first extract them from the game on Android after downloading the assets through play.
